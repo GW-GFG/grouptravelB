@@ -2,11 +2,12 @@ const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
   username: String,
+  email: String,
   password: String,
   token: String,
-  email: String,
   userPicture: String,
-  myTrips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'trips' }]
+//Preparation of the relationship with the 'trips' collection
+  myTrips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }]
 });
 
 const User = mongoose.model('users', userSchema);
