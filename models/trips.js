@@ -38,12 +38,14 @@ const chatSchema = mongoose.Schema({
 const tripSchema = mongoose.Schema({
     name : String,
     location : String,
-    departureDate : Date,
-    returnDate : Date,
+    dates : {
+        departure : Date,
+        return: Date
+    },
     budget : Number,
     admin : { type: mongoose.Schema.Types.ObjectId, ref: 'users' }, 
     members : [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
-    activities : [activitiesSchema],
+    activities : [activitiesSchema],    
     accomodations :[accomodationsSchema], 
     chat : [chatSchema]
 });
