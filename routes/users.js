@@ -4,6 +4,7 @@ var router = express.Router();
 //import data base connexion and DB's Users collection 
 require('../models/connexion');
 const User = require('../models/users');
+require('../models/trips');
 //import function to check field
 const { checkBody } = require('../modules/checkBody');
 //Import password encryption module
@@ -30,6 +31,7 @@ router.post('/signup', (req, res) => {
 
 // Check if the user has not already been registered (with case insensitive)
   User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
+    console.log('data findOne : ' + data)
     if (data === null) {
 //Hash the password
       const hash = bcrypt.hashSync(req.body.password, 10);
@@ -78,8 +80,11 @@ router.post('/signin', (req, res) => {
     }
   })
   .then(userdata => {
+    console.log('userdata : ' + userdata)
     //userdata includes myTrips populate
+    if(userdata){
     res.json({ result: true, token: userdata.token, username: userdata.username, myTrips: userdata.myTrips, userPicture: userdata.userPicture, email: userdata.email})
+    }
   })
   .catch(error => {
     res.json({ result: false, error: error.message})
