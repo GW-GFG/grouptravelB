@@ -10,21 +10,29 @@ router.get('/', (req, res) => {
 
 // POST an activity into a trip
 router.post('/new', (req, res) => {
+    const keysToCheck = ['name', 'date', 'url', 'description', 'budget']
     // check that all fields are not empty
-    if (!checkBody(req.body, ['name', 'place', 'date', 'picture', 'url', 'description', 'budget'])) {
+    if (!checkBody(req.body, keysToCheck)) {
         res.json({ result: false, error: 'Missing or empty fields' });
         return;
-      }
+    }
     // find the trip with his ID
-    const tripId = ''
-    Trip.findById(tripId, trip => {
-        if (!trip) {
-            res.json({ result: false, error: 'Trip not found' })
-            return
-        }
-        
-    })
-    const { name, place, date, picture, url, description, budget } = req.body
+    Trip.findById(req.body.tripId)
+        .then(data => {
+            // if no trip is found
+            if (!data) {
+                res.json({ result: false, error: 'Trip not found' })
+                return
+            }
+            // if a trip is found, create a new activity
+            const { name, date, url, description, budget } = req.body
+            const newActivity = { name, date, url, description, budget }
+            data.activities.push(newActivity)
+            data.save()
+                .then(newDoc => {
+                    res.json({result: true, newActivity: newDoc})
+                })
+        })
 })
 
 module.exports = router;
