@@ -17,7 +17,7 @@ router.post('/new', (req, res) => {
         return;  
     }
     // check if a trip for the users is already exist on those dates
-    User.findOne({ token : '5O6w1fh0P0QUEXPxHa7ruV_NigpCzbs_' })
+    User.findOne({ token : '7Az44VwjhOvapTcIHhyQH_IwYk04BDQG' })
         // user.token  
          .populate('myTrips')
          .then(data => {
@@ -47,9 +47,9 @@ router.post('/new', (req, res) => {
                     res.json({ result: true, newTrip: newDoc })
                 });
                 User.updateOne(
-                    { token: '5O6w1fh0P0QUEXPxHa7ruV_NigpCzbs_' }, { $push: {myTrips: newTrip.id}}
+                    { token: '7Az44VwjhOvapTcIHhyQH_IwYk04BDQG' }, { $push: {myTrips: newTrip.id}}
                    ).then(() => {
-                    User.findOne({ token: '5O6w1fh0P0QUEXPxHa7ruV_NigpCzbs_' }).then(data => {
+                    User.findOne({ token: '7Az44VwjhOvapTcIHhyQH_IwYk04BDQG' }).then(data => {
                       console.log(data);
                     });
                    });    
