@@ -12,52 +12,69 @@ router.post('/new', (req, res) => {
       return;
     }
     //check if dateDeparture > dateReturn
-    if(req.body.departureDate > req.body.returnDate) {
+    // Transform req.body dates with new Date to compare
+    const newDeparture = new Date(req.body.departureDate)
+    const newReturn = new Date(req.body.returnDate)
+    
+    if(req.body.departureDate >= req.body.returnDate) {
         res.json({ result: false, error: 'Date of return must be after date of departure' });
         return;  
     }
     // check if a trip for the users is already exist on those dates
-    User.findOne({ token : '5O6w1fh0P0QUEXPxHa7ruV_NigpCzbs_' })
-        // user.token  
-         .populate('myTrips')
-         .then(data => {
-            console.log(data)
-            console.log(data.id)
-            // if(data.myTrips.lenght > 0) {
-            // populate('myTrips')
-            // }
-            // check if departureDate or returnDate not includes in a existing trip Or if no Trip
-            if (!data.myTrips.some(e => {
-                return req.body.departureDate >= e.departureDate && req.body.returnDate <= e.returnDate;
-            }) || data === null ) {
-                const newTrip = new Trip({
-                    name : req.body.name,
-                    location : req.body.location,
-                    dates : {
-                        departure: req.body.departureDate,
-                        return: req.body.returnDate},
-                    budget : 0,
-                    admin :  data.id, 
-                    members : [],
-                    activities : [],    
-                    accomodations :[], 
-                    chat : []
-                })
-                newTrip.save().then(newDoc => {
-                    res.json({ result: true, newTrip: newDoc })
-                });
-                User.updateOne(
-                    { token: '5O6w1fh0P0QUEXPxHa7ruV_NigpCzbs_' }, { $push: {myTrips: newTrip.id}}
-                   ).then(() => {
-                    User.findOne({ token: '5O6w1fh0P0QUEXPxHa7ruV_NigpCzbs_' }).then(data => {
-                      console.log(data);
-                    });
-                   });    
-            } else {
-            // Trips for user is thoses dates already exists in database
-            res.json({ result: false, error: 'Trip was already declared for those dates' });
+    User.findOne({ token: 'slZFN9zG5cG1h8x10UXUeyti2hl0oKb1' })
+        .populate('myTrips')
+        .then(user => {
+            // if myTrips no empty For each trips in user.myTrip check dates are ok
+            for (let trip of user.myTrips) {
+                const tripDeparture = new Date(trip.dates.departure);
+                const tripReturn = new Date(trip.dates.return);
+            // comparaison des dates
+                if ((newDeparture >= tripDeparture && newDeparture <= tripReturn) ||
+                    (newReturn >= tripDeparture && newReturn <= tripReturn)) {
+                    res.json({ result: false, error: 'Trip conflicts with existing trip dates' });
+                    return;
+                }
             }
-    })
+            // Declaration new trip for bdd
+            const newTrip = new Trip({
+                name: req.body.name,
+                location: req.body.location,
+                dates: {
+                    departure: newDeparture,
+                    return: newReturn
+                },
+                budget: 0,
+                admin: user.id,
+                members: [],
+                activities: [],
+                accommodations: [],
+                chat: []
+            });
+            // save newtrip + Update myTrips with newTrip.id
+            newTrip.save()
+                .then(newDoc => {
+                    res.json({ result: true, newTrip: newDoc });
+                    return User.updateOne(
+                        { token: 'slZFN9zG5cG1h8x10UXUeyti2hl0oKb1' },
+                        { $push: { myTrips: newTrip.id } }
+                    );
+                })
+                .then(() => {
+                    return User.findOne({ token: 'slZFN9zG5cG1h8x10UXUeyti2hl0oKb1' })
+                        .populate('myTrips');
+                })
+                .then(updatedUser => {
+                    console.log(updatedUser.myTrips);
+                })
+                .catch(err => {
+                    console.error(err);
+                    res.json({ result: false, error: 'An error occurred' });
+                });
+        })
+        .catch(err => {
+            console.error(err);
+            res.json({ result: false, error: 'An error occurred' });
+        });
 });
 
 
