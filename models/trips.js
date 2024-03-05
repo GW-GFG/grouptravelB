@@ -16,6 +16,7 @@ const activitiesSchema = mongoose.Schema({
    });
 
 const accomodationsSchema = mongoose.Schema({
+    name: String,
     location: String,
     date : Date,
     photos : [String],
