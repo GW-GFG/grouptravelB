@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
   token: String,
   userPicture: String,
 //Preparation of the relationship with the 'trips' collection
-  myTrips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }]
+  myTrips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'trips' }]
 });
 
 const User = mongoose.model('users', userSchema);
