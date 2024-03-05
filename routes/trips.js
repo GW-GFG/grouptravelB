@@ -21,7 +21,7 @@ router.post('/new', (req, res) => {
         return;  
     }
     // check if a trip for the users is already exist on those dates
-    User.findOne({ token: 'slZFN9zG5cG1h8x10UXUeyti2hl0oKb1' })
+    User.findOne({ token: req.body.token })
         .populate('myTrips')
         .then(user => {
             // if myTrips no empty For each trips in user.myTrip check dates are ok
@@ -55,12 +55,12 @@ router.post('/new', (req, res) => {
                 .then(newDoc => {
                     res.json({ result: true, newTrip: newDoc });
                     return User.updateOne(
-                        { token: 'slZFN9zG5cG1h8x10UXUeyti2hl0oKb1' },
+                        { token: req.body.token },
                         { $push: { myTrips: newTrip.id } }
                     );
                 })
                 .then(() => {
-                    return User.findOne({ token: 'slZFN9zG5cG1h8x10UXUeyti2hl0oKb1' })
+                    return User.findOne({ token: req.body.token })
                         .populate('myTrips');
                 })
                 .then(updatedUser => {
@@ -76,6 +76,7 @@ router.post('/new', (req, res) => {
             res.json({ result: false, error: 'An error occurred' });
         });
 });
+
 
 
 module.exports = router;
