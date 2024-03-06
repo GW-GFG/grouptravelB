@@ -14,23 +14,45 @@ router.post('/', (req, res) => {
 // UPDATE to ADD a new accomodation in a trip
 router.post('/new', (req, res) => {
     // checks fields
-    if (!checkBody(req.body, ['name', 'date'])) {
+    if (!checkBody(req.body, ['name', 'departureDate', 'returnDate'])) {
         res.json({ result: false, error: 'Missing or empty fields' });
         return;
     }
 
     // checks if name is already taken for this accomodation
     Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } }).then(data => {
-        console.log('trying to find accomodation : ' + data);
         if (data !== null) {
-            console.log('name taken soz');
-            res.json({ result: false, error: 'Accomodation name already taken'})
+            res.json({ result: false, error: 'Le nom du logement existe déjà, il en faut un nouveau'})
         } else {
-            console.log('name open yay');
+            // Checking if end date is after start date
+            if(req.body.departureDate >= req.body.returnDate) {
+                res.json({ result: false, error: 'La date de fin doit être antérieure à la date de début' });
+                return;  
+            }
+
+            // Modifying dates from body to compare
+            const newDeparture = new Date(req.body.departureDate);
+            const newReturn = new Date(req.body.returnDate);
+
+            // Checking if accommodation dates are within trip dates
+            /*Uncomment when trip Dates are available from reducer
+            const tripDeparture = new Date(req.body.tripDeparture);
+            const tripReturn = new Date(req.body.tripReturn);
+            if ((newDeparture < tripDeparture && newDeparture > tripReturn) ||
+                    (newReturn > tripDeparture && newReturn < tripReturn)) {
+                    res.json({ result: false, error: 'Trip conflicts with existing trip dates' });
+                    return;
+                }
+            */
+
+            // newAccomodation to be added to database
             const newAccomodation = ({
                 name: req.body.name,
                 location: req.body.location,
-                date: req.body.date,
+                dates: {
+                    departure: newDeparture,
+                    return: newReturn
+                },
                 picture: req.body.picture,
                 url: req.body.url,
                 description: req.body.description,
@@ -40,8 +62,7 @@ router.post('/new', (req, res) => {
             });
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
-                console.log('trip found');
-                res.json({result: true, data: data});
+                res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
               });
         }
     });
