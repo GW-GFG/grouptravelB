@@ -77,6 +77,35 @@ router.post('/new', (req, res) => {
         });
 });
 
+// Router get Data of one Trip
+router.get('/data', (req, res) => {
+    Trip.findOne({_id: req.body.tripId})
+    .then(tripData => {
+        if(!tripData){
+            res.json({ result: false, error: 'No trip found' })
+        }
+        console.log(tripData);
+        res.json({ result: true, tripData: tripData })
+      })
+    .catch(err => {
+        console.error(err);
+        res.json({ result: false, error: 'An error occurred' });
+    });      
+});
+
+// Router get all dataTrip for a user
+router.get('/alldata/:token', (req, res) => {
+    User.findOne({token: req.params.token})
+    .populate('myTrips')
+    .then(userData => {
+        // console.log(userData)
+        if(userData.myTrips != null){
+            res.json({ result: true, allTripData: userData.myTrips })
+        } else {
+            res.json({ result: false, error: 'No Trip declared for this user'})
+        }
+    })
+});
 
 
 module.exports = router;
