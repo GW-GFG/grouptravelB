@@ -26,7 +26,12 @@ router.post('/new', (req, res) => {
             }
             // if a trip is found, create a new activity
             const { name, date, url, description, budget } = req.body
+            // TODO : check if date activity is inside trip date
+            const departureDate = data.dates.departure
+            const returnDate = data.dates.return
+            
             const newActivity = { name, date, url, description, budget }
+            // TODO : empty fields : default value ? into model?
             data.activities.push(newActivity)
             data.save()
                 .then(newDoc => {
