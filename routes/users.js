@@ -31,7 +31,6 @@ router.post('/signup', (req, res) => {
 
 // Check if the user has not already been registered (with case insensitive)
   User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
-    console.log('data findOne : ' + data)
     if (data === null) {
 //Hash the password
       const hash = bcrypt.hashSync(req.body.password, 10);
@@ -60,14 +59,12 @@ router.post('/signup', (req, res) => {
 router.post('/signin', (req, res) => {
   if (!checkBody(req.body, ['email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
-    console.log(req.body)
     return;
   }
 
   User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
 //use bcrypt again to verify that the password is correct
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      console.log("password ok, data : " + data)
 //populate only if there is at least one trip in myTrips array to prevent an error
         if (data.myTrips.length > 0) {
           return User.populate(data, { path: 'myTrips' });
@@ -80,7 +77,6 @@ router.post('/signin', (req, res) => {
     }
   })
   .then(userdata => {
-    console.log('userdata : ' + userdata)
     //userdata includes myTrips populate
     if(userdata){
     res.json({ result: true, token: userdata.token, username: userdata.username, myTrips: userdata.myTrips, userPicture: userdata.userPicture, email: userdata.email})
