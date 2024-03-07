@@ -21,28 +21,34 @@ router.post('/new', (req, res) => {
         .then(data => {
             // if no trip is found, return error
             if (!data) {
-                res.json({ result: false, error: 'Trip not found' })
+                res.json({ result: false, error: 'Voyage non trouvé' })
                 return
             }
             console.log('trip :', data)
-            const { name, date, url, description, budget } = req.body
-            // TODO : check if date activity is inside trip date
-            const departureDate = new Date(data.dates.departure)
-            const returnDate = new Date(data.dates.return)
-            const activityDate = new Date(date)
+            // check if date activity is inside trip date
+            const departureDate = data.dates.departure
+            const returnDate = data.dates.return
+            const activityDate = new Date(req.body.date)
             console.log(departureDate, returnDate, activityDate)
-            if (activityDate >= departureDate && activityDate <= returnDate) {
-                // if a trip is found and it is wihin trip's date, create a new activity
-            const newActivity = { name, date, url, description, budget }
-            // TODO : empty fields : default value ? into model?
-            data.activities.push(newActivity)
-            data.save()
-                .then(newDoc => {
-                    res.json({result: true, newActivity: newDoc})
-                })
-            } else {
-                res.json({ result: false, error: "Activity date is not included within trip's date" })
+            // check if activity is within trip's date or not
+            if (activityDate > returnDate || activityDate < departureDate) {
+                res.json({ result: false, error: "Attention: la date de l'activité n'est pas incluse dans les dates du voyage !" })
+                return
             }
+            const newActivity = ({
+                name: req.body.name,
+                place: req.body.place,
+                date: req.body.date,
+                picture: req.body.picture,
+                url: req.body.url,
+                description: req.body.description,
+                budget: req.body.budget,
+                vote: [],
+                isFixed: false,
+            })
+            Trip.updateOne({_id: req.body.tripId}, { $push: { activities: newActivity}}).then(data => {
+                res.json({result: true, data: data, message: 'Activité ajoutée avec succès !'});
+              })
         })
 })
 
