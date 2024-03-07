@@ -91,7 +91,27 @@ router.post('/signin', (req, res) => {
   })
 });
 
+// router.put('/adduser/:idTrips/:email',(req, res) => {
+//   if (!checkBody(req.body, ['username', 'password' ])) {
+//     res.json({ result: false, error: 'Missing or empty fields' });
+//     return;
+//   }
+  
+//   User.updateOne({ email: { $regex: new RegExp(req.params.email, 'i') } }).then(data => {
+//     console.log('data findOne : ' + data)
+// //Hash the password
+//       const hash = bcrypt.hashSync(req.body.password, 10);
+//       const token = uid2(32)
+// // 
 
+  
+           
+// //save the new document in the data base
+//       newUser.save().then(userdata => {
+//         res.json({ result: true, token: userdata.token, username: userdata.username, myTrips: userdata.myTrips, userPicture: userdata.userPicture, email: userdata.email });
+//       });
+//   });
+// })
 
 
 

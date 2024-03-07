@@ -4,6 +4,27 @@ require('../models/connexion');
 const Trip = require('../models/trips');
 const User = require('../models/users')
 const { checkBody } = require('../modules/checkBody');
+// const sgMail = require('@sendgrid/mail');
+
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+
+// const sendEmail = async (to, htmlContent) => {
+//     try {
+//       const msg = {
+//         to,
+//         from: 'group.travel.lacapsule@gmail.com', // Remplacez par votre adresse e-mail vérifiée sur SendGrid
+//         subject: 'Invitation à rejoindre un voyage',
+//         html: htmlContent,
+//       };
+//       await sgMail.send(msg);
+//       console.log('E-mail envoyé avec succès !');
+//     } catch (error) {
+//       console.error('Erreur lors de l\'envoi de l\'e-mail:', error);
+//       throw new Error('Erreur lors de l\'envoi de l\'e-mail');
+//     }
+//   };
+
 
 router.post('/new', (req, res) => {
     // check if name, location & dates fields aren't empty
@@ -11,11 +32,16 @@ router.post('/new', (req, res) => {
       res.json({ result: false, error: 'Missing or empty fields' });
       return;
     }
-    //check if dateDeparture > dateReturn
+    
     // Transform req.body dates with new Date to compare
     const newDeparture = new Date(req.body.departureDate)
     const newReturn = new Date(req.body.returnDate)
-    
+    //check if dateDeparture > date now
+    if(req.body.departureDate < new Date()){
+        res.json({ result: false, error: 'Date of departure cant be before today' });
+        return;  
+    }
+    //check if dateDeparture > dateReturn
     if(req.body.departureDate >= req.body.returnDate) {
         res.json({ result: false, error: 'Date of return must be after date of departure' });
         return;  
@@ -106,6 +132,59 @@ router.get('/alldata/:token', (req, res) => {
         }
     })
 });
+
+// router.put('/adduser/:idTrip',(req, res) => {
+//     //use checkbody
+//     if (!checkBody(req.body, ['email'])) {
+//         res.json({ result: false, error: 'Missing or empty fields' });
+//         return;
+//       }
+      
+//     User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
+//         console.log('data findOne : ' + data)
+//         if (data === null) {
+//     //create a new document user with @ et myTripId
+//             const newUser = new User({
+//                 username: '',
+//                 email: req.body.email,
+//                 password: '',
+//                 token: '',        
+//                 userPicture: '',
+//                 myTrips: [req.params.idTrips]
+//             });   
+//     //save the new user in the data base + update member with users member
+//             newUser.save()
+//                 .then(userdata => {
+//                     res.json({ result: true, newUser: userdata });
+//                     return Trip.updateOne(
+//                         { _id : req.params.idTrip },
+//                         { $push: { members: newUser.id } }
+//                     )
+//                 })
+//                 .then(() => {
+//                     return Trip.findOne({ _id : req.params.idTrip })
+//                         .populate('members');
+//                 })
+//                 .then(updatedTrip => {
+//                     const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000//adduser/${req.params.idTrip}`;
+//                     sendEmail(req.body.email, htmlContent)
+//                     console.log(updatedTrip.members);
+
+//                 })
+                
+//                 .catch(err => {
+//                     console.error(err);
+//                     res.json({ result: false, error: 'An error occurred' });
+//                 });
+                
+                
+//         } else {
+//     // User already exists in database
+            
+//           res.json({ result: false, error: 'User already exists' });
+//         }
+//       });
+// })
 
 
 module.exports = router;
