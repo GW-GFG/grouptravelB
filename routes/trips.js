@@ -148,7 +148,7 @@ router.put('/adduser/:idTrip',(req, res) => {
       
     User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
         console.log('data findOne : ' + data)
-        if (data === null) {
+        if (!data) {
     //create a new document user with @ et myTripId
             const newUser = new User({
                 username: '',
@@ -172,7 +172,7 @@ router.put('/adduser/:idTrip',(req, res) => {
                         .populate('members');
                 })
                 .then(updatedTrip => {
-                    const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000//adduser/${req.params.idTrip}/${newUser.token}`;
+                    const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${newUser.token}`;
                     sendEmail(req.body.email, htmlContent)
                     console.log(updatedTrip);
 
@@ -186,10 +186,14 @@ router.put('/adduser/:idTrip',(req, res) => {
                 
         } else {
     // User already exists in database
-          console.log(data)
-          const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000//adduser/${req.params.idTrip}/${newUser.token}`;
-          sendEmail(req.body.email, htmlContent)  
-          res.json({ result: false, error: 'User already exists' });
+            if(!data.myTrips.some((e) => e.id === req.params.idTrip)) {
+                console.log(data.token)
+                const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${data.token}/${req.params.idTrip}/`;
+                sendEmail(req.body.email, htmlContent)  
+                res.json({ result: true, Msg: 'User already exists, mail was send' });
+            } else {
+                res.json({ result: false, Msg: 'User already exists & it\s already includes in trips' }); 
+            }
         }
       });
 })
