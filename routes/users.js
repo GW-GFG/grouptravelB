@@ -87,27 +87,37 @@ router.post('/signin', (req, res) => {
   })
 });
 
-// router.put('/adduser/:idTrips/:email',(req, res) => {
-//   if (!checkBody(req.body, ['username', 'password' ])) {
-//     res.json({ result: false, error: 'Missing or empty fields' });
-//     return;
-//   }
-  
-//   User.updateOne({ email: { $regex: new RegExp(req.params.email, 'i') } }).then(data => {
-//     console.log('data findOne : ' + data)
-// //Hash the password
-//       const hash = bcrypt.hashSync(req.body.password, 10);
-//       const token = uid2(32)
-// // 
+// route to update a newUser.
 
-  
-           
-// //save the new document in the data base
-//       newUser.save().then(userdata => {
-//         res.json({ result: true, token: userdata.token, username: userdata.username, myTrips: userdata.myTrips, userPicture: userdata.userPicture, email: userdata.email });
-//       });
-//   });
-// })
+router.put('/updatenewuser',(req, res) => {
+    if (!checkBody(req.body, ['username', 'password' ])) {
+        res.json({ result: false, error: 'Missing or empty fields' });
+        return;
+      }
+      //hash password
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      //modification token déjà existant
+      const token = uid2(32)
+      User.updateOne({ email: { $regex: new RegExp(req.body.email, 'i')}}, 
+      { $set: { username: req.body.username, password: hash, token: token }})
+      .then(data => {
+        console.log('data updateOne : ', data);
+        // Si la mise à jour a réussi, renvoyer l'utilisateur mis à jour
+        if (data.modifiedCount > 0) {
+            return User.findOne({ email: req.body.email }); // Rechercher l'utilisateur mis à jour
+        } else {
+          res.json({ result: false, error: 'no modification' });
+        }
+      })
+      .then(updatedUser => {
+        console.log('Updated user:', updatedUser);
+        res.json({ result: true, updatedUser: updatedUser });
+        })
+      .catch(err => {
+          console.error(err);
+          res.json({ result: false, error: 'An error occurred' });
+      })
+    });
 
 
 
