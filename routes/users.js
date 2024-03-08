@@ -21,6 +21,31 @@ router.get('/', (req, res) => {
  });
 });
 
+/* POST ("GET") user by token */
+router.post('/getUser', (req, res) => {
+  User.findOne({token: req.body.token}).then(data => {
+    if (data) {
+      res.json({result: true, user: data});
+    } else {
+      res.json({result: false, message: "Utilisateur non trouvé"});
+    }
+    
+  });
+});
+
+/* POST ("DELETE") user by token */
+router.delete('/deleteUser/:token', (req, res) => {
+  User.findOne({token: req.params.token}).then(data => {
+    if (data) {
+      User.deleteOne({token: req.params.token}).then(data => {
+        res.json({result: true, message: "L'utilisateur a bien été supprimé de la base de données"});
+      });
+    } else {
+      res.json({result: false, message: "Utilisateur non trouvé"});
+    }
+  });
+});
+
 //SignUp to register a new user POST method
 router.post('/signup', (req, res) => {
 //Verify that the fields are correctly filled.
