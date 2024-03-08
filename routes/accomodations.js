@@ -56,7 +56,7 @@ router.post('/new', (req, res) => {
 
 // POST to vote for an accommodation
 router.post('/vote', (req, res) => {
-
+    console.log('reqbody ' + req.body)
     // get userId based on req.body.userToken to put userId in DB
     User.findOne({token: req.body.userToken}).then(userData => {
         // dbUserId = matching ID for req.body.userToken
