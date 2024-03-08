@@ -11,8 +11,8 @@ router.get('/', (req, res) => {
 
 // POST an activity into a trip
 router.post('/new', (req, res) => {
-    const keysToCheck = ['name', 'date', 'url', 'description', 'budget']
-    // check that all fields are not empty
+    const keysToCheck = ['name', 'date']
+    // check that name and date fields are not empty
     if (!checkBody(req.body, keysToCheck)) {
         res.json({ result: false, error: 'Missing or empty fields' });
         return;
