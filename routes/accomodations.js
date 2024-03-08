@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 require('../models/connexion');
 const Trip = require('../models/trips');
+const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 
 // "GET" all accomodations within a trip by body.id
@@ -45,7 +46,9 @@ router.post('/new', (req, res) => {
             });
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
-                res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
+                // Kevin: à priori pas besoin de "data" ?
+                //res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
+                res.json({result: true, message: 'Logement ajouté avec succès !'});
               });
         }
     });
@@ -54,67 +57,114 @@ router.post('/new', (req, res) => {
 // POST to vote for an accommodation
 router.post('/vote', (req, res) => {
 
-    // check if user already voted
-    Trip.findOne({_id: req.body.tripId}).then(data => {
+    // get userId based on req.body.userToken to put userId in DB
+    User.findOne({token: req.body.userToken}).then(userData => {
+        // dbUserId = matching ID for req.body.userToken
+        const dbUserId = userData._id.toString();
 
-        const currentAccomodation = data.accomodations.find((accomodation) => accomodation.id === req.body.accomodationId);
-        //singleVote.userId.toString() to convert the type "object" of objectId to string and compare it to req.body.userId that is a string
-        const checkUserVote = currentAccomodation.vote.find((singleVote) => singleVote.userId.toString() === req.body.userId);
+        // check if user already voted
+        Trip.findOne({_id: req.body.tripId}).then(data => {
 
-        //console.log('indexof ? ', currentAccomodation.indexOf(checkUserVote));
+            const currentAccomodation = data.accomodations.find((accomodation) => accomodation.id === req.body.accomodationId);
+            //singleVote.userId.toString() to convert the type "object" of objectId to string and compare it to userId that is a string
+            const checkUserVote = currentAccomodation.vote.find((singleVote) => singleVote.userId.toString() === dbUserId);
 
+            if (checkUserVote) {
+                // user has already voted
 
-        if (checkUserVote) {
-            // user has already voted
+                // checking if he already voted the same vote
+                if (checkUserVote.status.toString() === req.body.status) {
+                    // user has already voted the same vote
 
-            // checking if he already voted the same vote
-            if (checkUserVote.status.toString() === req.body.status) {
-                // user has already voted the same vote
-                res.json({result: false, error: 'Vous avez déjà fait ce vote'});
+                    // deleting precedent user vote
+                    Trip.findOneAndUpdate(
+                        { 
+                            _id: req.body.tripId, 
+                            'accomodations._id': req.body.accomodationId
+                        },
+                        { 
+                            $pull: { 'accomodations.$[outer].vote': { _id: checkUserVote.id } }
+                        },
+                        { 
+                            arrayFilters: [{ 'outer._id': req.body.accomodationId }], 
+                            new: true 
+                        }
+                    )
+                    .then(updatedTrip => {
+                        if (updatedTrip) {
+                            res.json({result: true, message: 'Vote annulé', newStatus: null});
+                        } else {
+                            res.status(404).json({result: false, error: 'Trip or accommodation not found' });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        res.status(500).json({ error: 'Server error' });
+                    });
+                } else {
+                    // user has already voted something different, changing his vote status
+                    Trip.findOneAndUpdate(
+                        { 
+                            _id: req.body.tripId, 
+                            'accomodations._id': req.body.accomodationId,
+                            'accomodations.vote._id': checkUserVote.id
+                        },
+                        { 
+                            $set: { 'accomodations.$[outer].vote.$[inner].status': req.body.status } 
+                        },
+                        { 
+                            arrayFilters: [{ 'outer._id': req.body.accomodationId }, { 'inner._id': checkUserVote.id}], 
+                            new: true 
+                        }
+                    )
+                    .then(updatedTrip => {
+                        if (updatedTrip) {
+                            res.json({ result: true, message: "Vote changé", newStatus: req.body.status});
+                        } else {
+                            res.status(404).json({ error: 'Trip or accommodation or vote not found' });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        res.status(500).json({ error: 'Server error' });
+                    });
+                    
+                }
             } else {
-                // user has already voted something different, changing his vote
-                //res.json({result: true, todo: 'change vote maybe ?', data: checkUserVote});
-                /*Trip.updateOne(
-                    {_id: req.body.tripId, 'accomodations._id': req.body.accomodationId, 'vote._id': checkUserVote._id},
-                    {'accomodations.$.vote': { $set: {'vote.$.status': req.body.status}}}).then(data => {
-                    res.json({data: data});
-                })*/
-                console.log('cassé, code commenté pour le commit');
+                // user hasn't voted yet, adding his vote
+                const newVote = ({
+                    userId: dbUserId,
+                    status: req.body.status
+                });
+            
+                // add new vote to DB
+                Trip.updateOne(
+                    {_id: req.body.tripId, 'accomodations._id': req.body.accomodationId}, 
+                    { $push: {'accomodations.$.vote': newVote}})
+                    .then(data => {
+                        res.json({ result: true, message: "Vote ajouté", newStatus: req.body.status});
+                });
             }
-        } else {
-            // user hasn't voted yet, adding his vote
+            
+            
+            //res.json({acco: currentAccomodation.vote, theVote: checkUserVote});
+
+
+
+            /* OK, uncomment if user didnt vote yet 
             const newVote = ({
-                userId: req.body.userId,
+                userId: userId,
                 status: req.body.status
             });
         
-            // add new vote to DB
             Trip.updateOne(
                 {_id: req.body.tripId, 'accomodations._id': req.body.accomodationId}, 
                 { $push: {'accomodations.$.vote': newVote}})
                 .then(data => {
                     res.json({ result: true });
             });
-        }
-        
-        
-        //res.json({acco: currentAccomodation.vote, theVote: checkUserVote});
-
-
-
-        /* OK, uncomment if user didnt vote yet 
-        const newVote = ({
-            userId: req.body.userId,
-            status: req.body.status
+            */  
         });
-    
-        Trip.updateOne(
-            {_id: req.body.tripId, 'accomodations._id': req.body.accomodationId}, 
-            { $push: {'accomodations.$.vote': newVote}})
-            .then(data => {
-                res.json({ result: true });
-        });
-        */
     });
 });
 
