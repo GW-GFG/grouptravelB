@@ -28,7 +28,8 @@ const accomodationsSchema = mongoose.Schema({
     budget: Number,
     vote: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-        status: Boolean 
+        status: Boolean,
+        userToken: String, 
     }],
     isFixed: Boolean,
 });
