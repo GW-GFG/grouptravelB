@@ -11,6 +11,7 @@ var tripsRouter = require('./routes/trips');
 var activitiesRouter = require('./routes/activities');
 var accomodationsRouter = require('./routes/accomodations');
 var declineRouter = require('./routes/decline');
+var budgetRouter = require('./routes/budget');
 
 var app = express();
 
@@ -26,8 +27,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/trips', tripsRouter);
-app.use('/activities', activitiesRouter)
-app.use('/accomodations', accomodationsRouter)
-app.use('/decline', declineRouter)
+app.use('/activities', activitiesRouter);
+app.use('/accomodations', accomodationsRouter);
+app.use('/decline', declineRouter);
+app.use('/budget', budgetRouter);
 
 module.exports = app;

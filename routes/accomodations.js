@@ -47,6 +47,11 @@ router.post('/new', (req, res) => {
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
                 // Kevin: à priori pas besoin de "data" ?
+                // Antoine : rajout de la fonction pour update champs budget du trip
+                if (req.body.budget > 0) {
+                    Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {  
+                    });
+                }
                 //res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
                 res.json({result: true, message: 'Logement ajouté avec succès !'});
               });

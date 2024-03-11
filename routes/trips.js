@@ -155,7 +155,7 @@ router.put('/addnewuser/:idTrip',(req, res) => {
                 email: req.body.email,
                 password: '',
                 token: uid2(32),        
-                userPicture: '',
+                userPicture: '/avatar.png',
                 myTrips: [req.params.idTrip]
             });   
     //save the new user in the data base + update member with users member

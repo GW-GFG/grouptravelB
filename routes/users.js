@@ -4,6 +4,7 @@ var router = express.Router();
 //import data base connexion and DB's Users collection 
 require('../models/connexion');
 const User = require('../models/users');
+const Trip = require('../models/trips');
 require('../models/trips');
 //import function to check field
 const { checkBody } = require('../modules/checkBody');
@@ -67,7 +68,7 @@ router.post('/signup', (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),        
-        userPicture: '',
+        userPicture: '/avatar.png',
         myTrips: []
       });
 //save the new document in the data base
@@ -145,6 +146,24 @@ router.put('/updatenewuser',(req, res) => {
       })
     });
 
+router.post('/getonetripallusername',(req, res) => {
+    Trip.findOne({_id: req.body.tripId})
+    .populate('admin')
+    .populate('members')
+    .then(userData => {
+      console.log(userData)
+      const adminUsername = userData.admin.username
+      const allNameOftrip = [adminUsername]
+      if(userData.members.length > 0){
+        const membersUsername = []
+        for (let member of userData.members){
+          allNameOftrip.push(member.username)
+        }
+        console.log(allNameOftrip)
+      }
+      res.json({ result: true, usernameData: allNameOftrip});
+    })
+})
 
 
 module.exports = router;
