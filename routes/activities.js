@@ -47,9 +47,14 @@ router.post('/new', (req, res) => {
                 participation: [],
                 isFixed: false,
             })
-            Trip.updateOne({_id: req.body.tripId}, { $push: { activities: newActivity}}).then(data => {
-                res.json({result: true, data: data, message: 'Activité ajoutée avec succès !'});
-              })
+            // Trip.updateOne({_id: req.body.tripId}, { $push: { activities: newActivity}}).then(data => {
+            //     res.json({result: true, data: data, message: 'Activité ajoutée avec succès !'});
+            //   })
+            data.activities.push(newActivity)
+            data.save()
+            .then(newActivity => {
+                res.json({result: true, newActivity, message: 'Activité ajoutée avec succès !'})
+            })
         })
 })
 
