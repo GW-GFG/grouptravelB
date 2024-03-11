@@ -16,10 +16,10 @@ router.post('/', (req, res) => {
 router.post('/new', (req, res) => {
     // checks fields
     if (!checkBody(req.body, ['name', 'departureDate', 'returnDate'])) {
-        res.json({ result: false, error: 'Missing or empty fields' });
+        res.json({ result: false, error: 'Pense à choisir un nom, et des dates pour ta proposition !' });
         return;
     }
-
+    
     // checks if name is already taken for this accomodation
     Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } }).then(data => {
         if (data !== null) {
@@ -29,6 +29,7 @@ router.post('/new', (req, res) => {
             const newDeparture = new Date(req.body.departureDate);
             const newReturn = new Date(req.body.returnDate);
 
+
             // newAccomodation to be added to database
             const newAccomodation = ({
                 name: req.body.name,
@@ -37,7 +38,7 @@ router.post('/new', (req, res) => {
                     departure: newDeparture,
                     return: newReturn
                 },
-                picture: req.body.picture,
+                photos: req.body.photos,
                 url: req.body.url,
                 description: req.body.description,
                 budget: req.body.budget,
@@ -46,8 +47,12 @@ router.post('/new', (req, res) => {
             });
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
-                // Kevin: à priori pas besoin de "data" ?
-                //res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
+
+                // if (req.body.budget > 0) {
+                //     Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
+                //         res.json({result: true, message: 'budget global maj avec succès !'});
+                //     });
+                // }
                 res.json({result: true, message: 'Logement ajouté avec succès !'});
               });
         }
