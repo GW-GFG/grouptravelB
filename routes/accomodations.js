@@ -62,11 +62,10 @@ router.post('/vote', (req, res) => {
         // dbUserId = matching ID for req.body.userToken
         const dbUserId = userData._id.toString();
 
-        // check if user already voted
+        // check if user already voted in this trip
         Trip.findOne({_id: req.body.tripId}).then(data => {
 
             const currentAccomodation = data.accomodations.find((accomodation) => accomodation.id === req.body.accomodationId);
-            //singleVote.userId.toString() to convert the type "object" of objectId to string and compare it to userId that is a string
             const checkUserVote = currentAccomodation.vote.find((singleVote) => singleVote.userId.toString() === dbUserId);
 
             if (checkUserVote) {
@@ -134,7 +133,8 @@ router.post('/vote', (req, res) => {
                 // user hasn't voted yet, adding his vote
                 const newVote = ({
                     userId: dbUserId,
-                    status: req.body.status
+                    status: req.body.status,
+                    userToken: req.body.userToken
                 });
             
                 // add new vote to DB
