@@ -139,7 +139,8 @@ router.post('/vote', (req, res) => {
                 // user hasn't voted yet, adding his vote
                 const newVote = ({
                     userId: dbUserId,
-                    status: req.body.status
+                    status: req.body.status,
+                    userToken: req.body.userToken
                 });
             
                 // add new vote to DB

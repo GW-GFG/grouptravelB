@@ -10,7 +10,8 @@ const activitiesSchema = mongoose.Schema({
     budget: Number,
     participation: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
-        status: Boolean 
+        status: Boolean,
+        userToken: String
     }],
     isFixed: Boolean,
    });
