@@ -37,8 +37,9 @@ router.post('/getUser', (req, res) => {
 router.delete('/deleteUser/:token', (req, res) => {
   User.findOne({token: req.params.token}).then(data => {
     if (data) {
+      console.log(data)
       User.deleteOne({token: req.params.token}).then(data => {
-        res.json({result: true, message: "L'utilisateur a bien été supprimé de la base de données"});
+         res.json({result: true, message: "L'utilisateur a bien été supprimé de la base de données"});
       });
     } else {
       res.json({result: false, message: "Utilisateur non trouvé"});

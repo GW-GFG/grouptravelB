@@ -92,7 +92,7 @@ router.post('/new', (req, res) => {
 });
 
 // Router get Data of one Trip
-router.get('/data', (req, res) => {
+router.post('/onetrip', (req, res) => {
     Trip.findOne({_id: req.body.tripId})
     .then(tripData => {
         if(!tripData){
@@ -139,7 +139,7 @@ const sendEmail = async (to, htmlContent) => {
     }
   };
 
-router.put('/adduser/:idTrip',(req, res) => {
+router.put('/addnewuser/:idTrip',(req, res) => {
     //use checkbody
     if (!checkBody(req.body, ['email'])) {
         res.json({ result: false, error: 'Missing or empty fields' });
@@ -185,7 +185,7 @@ router.put('/adduser/:idTrip',(req, res) => {
                 
                 
         } else {
-    // User already exists in database
+    // User already exists in database & doesn't already exist inTrip
             if(!data.myTrips.some((e) => e.id === req.params.idTrip)) {
                 console.log(data.token)
                 const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${data.token}/${req.params.idTrip}/`;
@@ -197,6 +197,53 @@ router.put('/adduser/:idTrip',(req, res) => {
         }
       });
 })
+
+// ROUTE CONFIRMATION ALDREADY IN DDB
+
+router.put('/adduser/:idTrip', async (req, res) => {
+        // Recherche de l'utilisateur par le token
+        User.findOne({ token: req.body.token })
+            .then(userData => {
+                if (!userData) {
+                    return res.json({ result: false, Msg: 'User does not exist' });
+                }
+    
+                // Mise à jour du token de l'utilisateur
+                const newToken = uid2(32)
+                return User.updateOne({ token: req.body.token }, { $set: { token: newToken }, $push: { myTrips: req.params.idTrip } })
+                    .then(() => {
+                        // Recherche du voyage par ID
+                        return Trip.findOne({ _id: req.params.idTrip }).populate('members');
+                    })
+                    .then(tripData => {
+                        if (!tripData) {
+                            return res.status(404).json({ result: false, Msg: 'Trip not found' });
+                        }
+    
+                        // Vérification si l'utilisateur est déjà membre du voyage
+                        if (tripData.members.some((member) => member.equals(userData._id))) {
+                            return res.json({ result: false, Msg: 'User already added to trip' });
+                        }
+    
+                        // Ajout de l'utilisateur au voyage
+                        return Trip.updateOne({ _id: req.params.idTrip }, { $push: { members: userData._id } })
+                            .then(() => {
+                                // Récupération du voyage mis à jour
+                                return Trip.findOne({ _id: req.params.idTrip })
+                                // .populate('members');
+                            })
+                            .then(updatedTrip => {
+                                // Réponse avec succès
+                                res.json({ result: true, Msg: 'User added to trip', trip: updatedTrip });
+                            });
+                    });
+            })
+            .catch(error => {
+                // Gestion des erreurs
+                console.error('Error adding user to trip:', error);
+                res.status(500).json({ result: false, Msg: 'Internal server error' });
+            });
+});
 
 
 module.exports = router;
