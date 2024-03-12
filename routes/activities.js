@@ -5,9 +5,7 @@ const Trip = require('../models/trips')
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody')
 
-// GET all activities within a trip
-router.get('/', (req, res) => {
-})
+
 
 // POST an activity into a trip
 router.post('/new', (req, res) => {
