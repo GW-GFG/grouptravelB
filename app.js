@@ -12,6 +12,8 @@ var activitiesRouter = require('./routes/activities');
 var accomodationsRouter = require('./routes/accomodations');
 var declineRouter = require('./routes/decline');
 var budgetRouter = require('./routes/budget');
+var chatRouter = require('./routes/chat');
+
 
 var app = express();
 
@@ -34,5 +36,6 @@ app.use('/activities', activitiesRouter);
 app.use('/accomodations', accomodationsRouter);
 app.use('/decline', declineRouter);
 app.use('/budget', budgetRouter);
+app.use('/chat', chatRouter);
 
 module.exports = app;
