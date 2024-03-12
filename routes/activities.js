@@ -38,7 +38,7 @@ router.post('/new', (req, res) => {
             }
             const newActivity = ({
                 name: req.body.name,
-                place: req.body.place,
+                location: req.body.location,
                 date: req.body.date,
                 picture: req.body.picture,
                 url: req.body.url,
@@ -49,7 +49,6 @@ router.post('/new', (req, res) => {
             })
 
             // Antoine : Rajout de la condition udpate budget du trip 
-            console.log('data budget ', typeof data.budget, 'data req.body.budget ', typeof req.body.budget )
             // Update budget only if req.body.budget > 0
             if (req.body.budget > 0) {
                 data.budget += Number(req.body.budget);

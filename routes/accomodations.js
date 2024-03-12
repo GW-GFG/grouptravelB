@@ -33,7 +33,11 @@ router.post('/new', (req, res) => {
             // newAccomodation to be added to database
             const newAccomodation = ({
                 name: req.body.name,
-                location: req.body.location,
+                location: {
+                    name: req.body.location.name,
+                    lat: req.body.location.lat,
+                    lng: req.body.location.lng,
+                },
                 dates: {
                     departure: newDeparture,
                     return: newReturn

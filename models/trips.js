@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 
 const activitiesSchema = mongoose.Schema({
     name: String,
-    place : String,
+    location: {
+        name: String,
+        lat: Number,
+        lng: Number
+    },
     date : Date,
     picture : String,
     url: String,
@@ -18,7 +22,11 @@ const activitiesSchema = mongoose.Schema({
 
 const accomodationsSchema = mongoose.Schema({
     name: String,
-    location: String,
+    location: {
+        name: String,
+        lat: Number,
+        lng: Number
+    },
     dates : {
         departure : Date,
         return: Date
@@ -43,7 +51,11 @@ const chatSchema = mongoose.Schema({
 
 const tripSchema = mongoose.Schema({
     name : String,
-    location : String,
+    location: {
+        name: String,
+        lat: Number,
+        lng: Number
+    },
     dates : {
         departure : Date,
         return: Date

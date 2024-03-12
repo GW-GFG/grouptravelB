@@ -50,9 +50,14 @@ router.post('/new', (req, res) => {
                 }
             }
             // Declaration new trip for bdd
+            // TODO HAVE LAT AND LNG
             const newTrip = new Trip({
                 name: req.body.name,
-                location: req.body.location,
+                location: {
+                    name: req.body.location.name,
+                    lat: req.body.location.lat,
+                    lng: req.body.location.lng,
+                },
                 dates: {
                     departure: newDeparture,
                     return: newReturn
