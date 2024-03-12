@@ -24,21 +24,46 @@ router.get('/', (req, res) => {
 
 /* POST ("GET") user by token */
 router.post('/getUser', (req, res) => {
-  User.findOne({token: req.body.token}).then(data => {
+  User.findOne({token: req.body.token})
+  .populate('myTrips')
+  .then(data => {
     if (data) {
-      res.json({result: true, user: data});
+      res.json({ result: true, token: data.token, username: data.username, myTrips: data.myTrips, userPicture: data.userPicture, email: data.email });
     } else {
       res.json({result: false, message: "Utilisateur non trouvé"});
-    }
-    
+    }   
   });
 });
+
+//update user
+router.put('/updateOne', (req, res) => {
+  if (!req.body.token || !req.body.profilPicture) {
+    return res.json({ result: false, message: "Données manquantes" });
+  }
+
+  User.updateOne({ token: req.body.token }, { userPicture: req.body.profilPicture })
+  .then(() => {
+    return User.findOne({ token: req.body.token }).select('-password -_id');
+  })
+  //userData contains all data exept _id and password (handled by .select())
+  .then(userData => {
+    if (userData) {
+      res.json({ result: true });
+    } else {
+      res.json({ result: false, message: "Utilisateur non trouvé" });
+    }
+  })
+  .catch(error => {
+    console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
+    res.json({ result: false, message: "Une erreur s'est produite lors de la mise à jour de l'utilisateur" });
+  });   
+  });
+
 
 /* POST ("DELETE") user by token */
 router.delete('/deleteUser/:token', (req, res) => {
   User.findOne({token: req.params.token}).then(data => {
     if (data) {
-      console.log(data)
       User.deleteOne({token: req.params.token}).then(data => {
          res.json({result: true, message: "L'utilisateur a bien été supprimé de la base de données"});
       });
@@ -128,7 +153,7 @@ router.put('/updatenewuser',(req, res) => {
       User.updateOne({ email: { $regex: new RegExp(req.body.email, 'i')}}, 
       { $set: { username: req.body.username, password: hash, token: token }})
       .then(data => {
-        console.log('data updateOne : ', data);
+
         // Si la mise à jour a réussi, renvoyer l'utilisateur mis à jour
         if (data.modifiedCount > 0) {
             return User.findOne({ email: req.body.email }); // Rechercher l'utilisateur mis à jour
@@ -137,7 +162,7 @@ router.put('/updatenewuser',(req, res) => {
         }
       })
       .then(updatedUser => {
-        console.log('Updated user:', updatedUser);
+
         res.json({ result: true, updatedUser: updatedUser });
         })
       .catch(err => {
@@ -151,7 +176,7 @@ router.post('/getonetripallusername',(req, res) => {
     .populate('admin')
     .populate('members')
     .then(userData => {
-      console.log(userData)
+
       const adminUsername = userData.admin.username
       const allNameOftrip = [adminUsername]
       if(userData.members.length > 0){
@@ -159,7 +184,7 @@ router.post('/getonetripallusername',(req, res) => {
         for (let member of userData.members){
           allNameOftrip.push(member.username)
         }
-        console.log(allNameOftrip)
+
       }
       res.json({ result: true, usernameData: allNameOftrip});
     })

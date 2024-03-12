@@ -44,7 +44,8 @@ const accomodationsSchema = mongoose.Schema({
 });
 
 const chatSchema = mongoose.Schema({
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    // author: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    author : String,
     date: Date,
     message: String
 })
