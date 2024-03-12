@@ -21,7 +21,8 @@ router.post('/new', (req, res) => {
     }
     
     // checks if name is already taken for this accomodation
-    Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } }).then(data => {
+    Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
+    .then(data => {
         if (data !== null) {
             res.json({ result: false, error: 'Le nom du logement existe déjà, il en faut un nouveau'})
         } else {
@@ -54,7 +55,7 @@ router.post('/new', (req, res) => {
                     });
                 }
                 //res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
-                res.json({result: true, message: 'Logement ajouté avec succès !'});
+                res.json({result: true, newAccomodation, message: 'Logement ajouté avec succès !'});
               });
         }
     });

@@ -17,7 +17,7 @@ const uid2 = require('uid2');
 router.post('/new', (req, res) => {
     // check if name, location & dates fields aren't empty
     if (!checkBody(req.body, ['name', 'location', 'departureDate', 'returnDate' ])) {
-      res.json({ result: false, error: 'Missing or empty fields' });
+      res.json({ result: false, error: 'Merci de remplir les champs.' });
       return;
     }
     
@@ -26,12 +26,12 @@ router.post('/new', (req, res) => {
     const newReturn = new Date(req.body.returnDate)
     //check if dateDeparture > date now
     if(req.body.departureDate < new Date()){
-        res.json({ result: false, error: 'Date of departure cant be before today' });
+        res.json({ result: false, error: "La date de départ ne peut pas être avant aujourd'hui." });
         return;  
     }
     //check if dateDeparture > dateReturn
     if(req.body.departureDate >= req.body.returnDate) {
-        res.json({ result: false, error: 'Date of return must be after date of departure' });
+        res.json({ result: false, error: 'La date de retour doit être postérieur à la date de départ.' });
         return;  
     }
     // check if a trip for the users is already exist on those dates
@@ -45,7 +45,7 @@ router.post('/new', (req, res) => {
             // comparaison des dates
                 if ((newDeparture >= tripDeparture && newDeparture <= tripReturn) ||
                     (newReturn >= tripDeparture && newReturn <= tripReturn)) {
-                    res.json({ result: false, error: 'Trip conflicts with existing trip dates' });
+                    res.json({ result: false, error: 'Les dates du voyage sont en conflit avec un de vos autres voyages.' });
                     return;
                 }
             }
