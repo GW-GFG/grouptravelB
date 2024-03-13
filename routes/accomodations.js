@@ -55,12 +55,14 @@ router.post('/new', (req, res) => {
                 // Kevin: à priori pas besoin de "data" ?
                 // Antoine : rajout de la fonction pour update champs budget du trip
                 if (req.body.budget > 0) {
-                    Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {  
-                    });
+                Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
+                });
                 }
-                //res.json({result: true, data: data, message: 'Logement ajouté avec succès !'});
-                res.json({result: true, newAccomodation, message: 'Logement ajouté avec succès !'});
-              });
+                Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
+                .then(data => {
+                res.json({result: true, newAccomodation: data, message: 'Logement ajouté avec succès !'});
+                });
+                });
         }
     });
 });
