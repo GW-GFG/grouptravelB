@@ -14,12 +14,12 @@ router.put('/invitateduser/:tripId', async (req, res) => {
             // Suppression de l'utilisateur du voyage
             return Trip.updateOne(
                 { _id: req.params.tripId },
-                { $pull: { members: userData.id } }
+                { $pull: { members: userData._id } }
             ).then(tripUpdateResult => {
                 console.log(tripUpdateResult)
                 if (tripUpdateResult.modifiedCount > 0) {
                     // Suppression permanente de l'utilisateur
-                    return User.deleteOne({ _id: userData.id })
+                    return User.deleteOne({ _id: userData._id })
                         .then(deleteUserResult => {
                             if (!deleteUserResult.deletedCount) {
                                 return res.json({ result: false, Msg: 'Failed to delete user' });
