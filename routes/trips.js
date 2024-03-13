@@ -26,12 +26,12 @@ router.post('/new', (req, res) => {
     const newReturn = new Date(req.body.returnDate)
     //check if dateDeparture > date now
     if(req.body.departureDate < new Date()){
-        res.json({ result: false, error: "La date de départ ne peut pas être avant aujourd'hui." });
+        res.json({ result: false, error: "La date de départ ne peut pas antérieure à la date du jour." });
         return;  
     }
     //check if dateDeparture > dateReturn
     if(req.body.departureDate >= req.body.returnDate) {
-        res.json({ result: false, error: 'La date de retour doit être postérieur à la date de départ.' });
+        res.json({ result: false, error: 'La date de retour doit être postérieure à la date de départ.' });
         return;  
     }
     // check if a trip for the users is already exist on those dates
