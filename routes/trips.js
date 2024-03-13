@@ -10,6 +10,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 //import module to create unique token
 const uid2 = require('uid2');
+const { now } = require('mongoose');
 
 
 
@@ -25,8 +26,8 @@ router.post('/new', (req, res) => {
     const newDeparture = new Date(req.body.departureDate)
     const newReturn = new Date(req.body.returnDate)
     //check if dateDeparture > date now
-    if(req.body.departureDate < new Date()){
-        res.json({ result: false, error: "La date de départ ne peut pas antérieure à la date du jour." });
+    if(req.body.departureDate <= new Date(now)){
+        res.json({ result: false, error: "La date de départ ne peut pas être avant aujourd'hui." });
         return;  
     }
     //check if dateDeparture > dateReturn
@@ -150,7 +151,7 @@ router.put('/addnewuser/:idTrip',(req, res) => {
         res.json({ result: false, error: 'Missing or empty fields' });
         return;
       }
-      
+    // Check if user already in DB  
     User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
         console.log('data findOne : ' + data)
         if (!data) {
