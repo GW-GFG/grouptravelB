@@ -77,6 +77,47 @@ router.post("/areNotFixed", (req, res) => {
 });
 
 //update trip with form fields date, isFixed
-router.put("/fixOne", (req, res) => {});
+router.put("/fixOne", (req, res) => {
+  const { isAdmin, activityId, date, isFixed } = req.body
+  if(!req.body || !activityId || !isFixed){
+    res.json({ result: false, error: "Nothing to update" });
+    return;
+  }
+  if(!isAdmin){
+    res.json({ result: false, error: "Only admin can update" });
+  }
+    //the filter is req activityId
+    const filter = { "activities._id": activityId};
+    //$set allow to updating only some fields (here isFixed first beacause is always require)
+    const update = { $set: { "activities.$.isFixed": isFixed } };
+    //then, only if there is a date in req body, i add it to my update const
+    if (date){
+      update.$set["activities.$.date"] = new Date(date);
+    }
+    //I use the filter and the params defined before
+    Trip.updateOne(filter, update)
+    .then(data => {
+      console.log('updatdata : ', JSON.stringify(data))
+      if (data.modifiedCount > 0) {
+//update is ok i want tu return the activity data to front
+        Trip.findOne({ "activities._id": activityId})
+        .then(trip => {
+          const updatedActivity = trip.activities.find(activity => activity._id.equals(activityId))
+          return res.json({ result: true, updatedActivity });
+        })
+      } else {
+        return res.json({ result: false, error: "Not found or not updated" });
+      }
+    })
+    .catch (error => {
+      console.error("Error updating trip:", error);
+      return res.json({ result: false, error: "An error occured" });
+    })  
+  });
+
+  
+  
+    
+
 
 module.exports = router;

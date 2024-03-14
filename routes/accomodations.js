@@ -12,7 +12,7 @@ router.post('/', (req, res) => {
       });
 });
 
-// UPDATE to ADD a new accomodation in a trip
+//ADD a new accomodation in a trip
 router.post('/new', (req, res) => {
     // checks fields
     if (!checkBody(req.body, ['name', 'departureDate', 'returnDate'])) {
@@ -158,28 +158,48 @@ router.post('/vote', (req, res) => {
                         res.json({ result: true, message: "Vote ajouté", newStatus: req.body.status});
                 });
             }
-            
-            
-            //res.json({acco: currentAccomodation.vote, theVote: checkUserVote});
-
-
-
-            /* OK, uncomment if user didnt vote yet 
-            const newVote = ({
-                userId: userId,
-                status: req.body.status
-            });
-        
-            Trip.updateOne(
-                {_id: req.body.tripId, 'accomodations._id': req.body.accomodationId}, 
-                { $push: {'accomodations.$.vote': newVote}})
-                .then(data => {
-                    res.json({ result: true });
-            });
-            */  
         });
     });
 });
+
+//update trip with form fields date, isFixed
+router.put("/fixOne", (req, res) => {
+    const { isAdmin, accommodationId, dates, isFixed } = req.body
+    if(!req.body || !accommodationId || !isFixed){
+      res.json({ result: false, error: "Nothing to update" });
+      return;
+    }
+    if(!isAdmin){
+      res.json({ result: false, error: "Only admin can update" });
+    }
+      //the filter is req accommodationId
+      const filter = { "accomodations._id": accommodationId};
+      //$set allow to updating only some fields (here isFixed first beacause is always require)
+      const update = { $set: { "accomodations.$.isFixed": isFixed } };
+      //then, only if there is a dates in req body, i add it to my update const
+      if (dates){
+        update.$set["accomodations.$.date.departure"] = new Date(dates.departure);
+        update.$set["accomodations.$.date.return"] = new Date(dates.return);
+      }
+      //I use the filter and the params defined before
+      Trip.updateOne(filter, update)
+      .then(data => {
+        if (data.modifiedCount > 0) {
+  //update is ok i want tu return the accommodation data to front
+          Trip.findOne({ "accomodations._id": accommodationId})
+          .then(trip => {
+            const updatedAccommodation = trip.accomodations.find(accommodation => accommodation._id.equals(accommodationId))
+            return res.json({ result: true, updatedAccommodation });
+          })
+        } else {
+          return res.json({ result: false, error: "Not found or not updated" });
+        }
+      })
+      .catch (error => {
+        console.error("Error updating trip:", error);
+        return res.json({ result: false, error: "An error occured" });
+      })  
+    });
 
 
 module.exports = router;
