@@ -104,8 +104,7 @@ router.post('/onetrip', (req, res) => {
         if(!tripData){
             res.json({ result: false, error: 'No trip found' })
         }
-        console.log(tripData);
-        res.json({ result: true, tripData: tripData })
+        res.json({ result: true, tripData: tripData})
       })
     .catch(err => {
         console.error(err);

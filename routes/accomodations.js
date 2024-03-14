@@ -53,11 +53,11 @@ router.post('/new', (req, res) => {
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
                 // Kevin: à priori pas besoin de "data" ?
-                // Antoine : rajout de la fonction pour update champs budget du trip
-                if (req.body.budget > 0) {
-                Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
-                });
-                }
+                // Antoine : rajout de la fonction pour update champs budget du trip -> Déplacement à la route is fixed
+                // if (req.body.budget > 0) {
+                // Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
+                // });
+                // }
                 Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
                 .then(data => {
                     res.json({result: true, newAccomodation: data, message: 'Logement ajouté avec succès !'});
@@ -170,6 +170,8 @@ router.put("/fixOne", (req, res) => {
     if(!isAdmin){
       res.json({ result: false, error: "Only admin can update" });
     }
+
+    
       //the filter is req accommodationId
       const filter = { "accomodations._id": accommodationId};
       //$set allow to updating only some fields (here isFixed first beacause is always require)
@@ -179,11 +181,13 @@ router.put("/fixOne", (req, res) => {
         update.$set["accomodations.$.date.departure"] = new Date(dates.departure);
         update.$set["accomodations.$.date.return"] = new Date(dates.return);
       }
+      
       //I use the filter and the params defined before
       Trip.updateOne(filter, update)
       .then(data => {
         if (data.modifiedCount > 0) {
   //update is ok i want tu return the accommodation data to front
+  
           Trip.findOne({ "accomodations._id": accommodationId})
           .then(trip => {
             const updatedAccommodation = trip.accomodations.find(accommodation => accommodation._id.equals(accommodationId))

@@ -79,7 +79,7 @@ router.post("/areNotFixed", (req, res) => {
 //update trip with form fields date, isFixed
 router.put("/fixOne", (req, res) => {
   const { isAdmin, activityId, date, isFixed } = req.body
-  if(!req.body || !activityId || !isFixed){
+  if(!req.body || !activityId){
     res.json({ result: false, error: "Nothing to update" });
     return;
   }
@@ -94,6 +94,13 @@ router.put("/fixOne", (req, res) => {
     if (date){
       update.$set["activities.$.date"] = new Date(date);
     }
+
+    // Vérifier si le budget est diff 0 et mettre à jour si nécessaire
+    // if (budget) {
+    //   // Ajoutez la mise à jour conditionnelle du budget
+    //   // Si isFixed est true, incrémente le budget ; sinon, décrémente le budget
+    //   update.$inc = { "activities.$.budget": isFixed ? budget : -budget };
+    // }
     //I use the filter and the params defined before
     Trip.updateOne(filter, update)
     .then(data => {
@@ -105,6 +112,7 @@ router.put("/fixOne", (req, res) => {
           const updatedActivity = trip.activities.find(activity => activity._id.equals(activityId))
           return res.json({ result: true, updatedActivity });
         })
+        
       } else {
         return res.json({ result: false, error: "Not found or not updated" });
       }
