@@ -48,9 +48,9 @@ router.post('/new', (req, res) => {
 
             // Antoine : Rajout de la condition udpate budget du trip 
             // Update budget only if req.body.budget > 0
-            if (req.body.budget > 0) {
-                data.budget += Number(req.body.budget);
-            }
+            // if (req.body.budget > 0) {
+            //     data.budget += Number(req.body.budget);
+            // }
             // Trip.updateOne({_id: req.body.tripId}, { $push: { activities: newActivity}}).then(data => {
             //     res.json({result: true, data: data, message: 'Activité ajoutée avec succès !'});
             //   })

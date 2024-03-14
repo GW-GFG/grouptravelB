@@ -53,11 +53,11 @@ router.post('/new', (req, res) => {
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
                 // Kevin: à priori pas besoin de "data" ?
-                // Antoine : rajout de la fonction pour update champs budget du trip
-                if (req.body.budget > 0) {
-                Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
-                });
-                }
+                // Antoine : rajout de la fonction pour update champs budget du trip -> Déplacement à la route is fixed
+                // if (req.body.budget > 0) {
+                // Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
+                // });
+                // }
                 Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
                 .then(data => {
                     res.json({result: true, newAccomodation: data, message: 'Logement ajouté avec succès !'});
@@ -164,7 +164,7 @@ router.post('/vote', (req, res) => {
 
 //update trip with form fields date, isFixed
 router.put("/fixOne", (req, res) => {
-    const { isAdmin, accommodationId, dates, isFixed } = req.body
+    const { isAdmin, accommodationId, dates, isFixed, budget } = req.body
     if(!req.body || !accommodationId || !isFixed){
       res.json({ result: false, error: "Nothing to update" });
       return;
@@ -172,6 +172,8 @@ router.put("/fixOne", (req, res) => {
     if(!isAdmin){
       res.json({ result: false, error: "Only admin can update" });
     }
+
+    
       //the filter is req accommodationId
       const filter = { "accomodations._id": accommodationId};
       //$set allow to updating only some fields (here isFixed first beacause is always require)
@@ -180,6 +182,12 @@ router.put("/fixOne", (req, res) => {
       if (dates){
         update.$set["accomodations.$.date.departure"] = new Date(dates.departure);
         update.$set["accomodations.$.date.return"] = new Date(dates.return);
+      }
+      // Antoine :
+      // Vérifier si le budget est non null 0 et mettre à jour si nécessaire
+      if (budget) {
+        // Ajouter la mise à jour conditionnelle pour le budget
+        update.$inc = { budget: budget };
       }
       //I use the filter and the params defined before
       Trip.updateOne(filter, update)
