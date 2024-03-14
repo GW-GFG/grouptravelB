@@ -164,7 +164,7 @@ router.post('/vote', (req, res) => {
 
 //update trip with form fields date, isFixed
 router.put("/fixOne", (req, res) => {
-    const { isAdmin, accommodationId, dates, isFixed, budget } = req.body
+    const { isAdmin, accommodationId, dates, isFixed, } = req.body
     if(!req.body || !accommodationId || !isFixed){
       res.json({ result: false, error: "Nothing to update" });
       return;
@@ -183,17 +183,13 @@ router.put("/fixOne", (req, res) => {
         update.$set["accomodations.$.date.departure"] = new Date(dates.departure);
         update.$set["accomodations.$.date.return"] = new Date(dates.return);
       }
-      // Antoine :
-      // Vérifier si le budget est non null 0 et mettre à jour si nécessaire
-      if (budget) {
-        // Ajouter la mise à jour conditionnelle pour le budget
-        update.$inc = { budget: budget };
-      }
+      
       //I use the filter and the params defined before
       Trip.updateOne(filter, update)
       .then(data => {
         if (data.modifiedCount > 0) {
   //update is ok i want tu return the accommodation data to front
+  
           Trip.findOne({ "accomodations._id": accommodationId})
           .then(trip => {
             const updatedAccommodation = trip.accomodations.find(accommodation => accommodation._id.equals(accommodationId))

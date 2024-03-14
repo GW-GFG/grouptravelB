@@ -96,10 +96,11 @@ router.put("/fixOne", (req, res) => {
     }
 
     // Vérifier si le budget est diff 0 et mettre à jour si nécessaire
-    if (budget) {
-      // Ajouter la mise à jour conditionnelle pour le budget
-      update.$inc = { budget: budget };
-    }
+    // if (budget) {
+    //   // Ajoutez la mise à jour conditionnelle du budget
+    //   // Si isFixed est true, incrémente le budget ; sinon, décrémente le budget
+    //   update.$inc = { "activities.$.budget": isFixed ? budget : -budget };
+    // }
     //I use the filter and the params defined before
     Trip.updateOne(filter, update)
     .then(data => {
