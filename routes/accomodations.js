@@ -164,11 +164,9 @@ router.post('/vote', (req, res) => {
 
 //update trip with form fields date, isFixed
 router.put("/fixOne", (req, res) => {
+    console.log('route', req.body)
     const { isAdmin, accommodationId, dates, isFixed } = req.body
-    if(!req.body || !accommodationId || !isFixed){
-      res.json({ result: false, error: "Nothing to update" });
-      return;
-    }
+    console.log(JSON.stringify(req.body))
     if(!isAdmin){
       res.json({ result: false, error: "Only admin can update" });
     }
