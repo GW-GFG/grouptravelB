@@ -79,7 +79,7 @@ router.post("/areNotFixed", (req, res) => {
 //update trip with form fields date, isFixed
 router.put("/fixOne", (req, res) => {
   const { isAdmin, activityId, date, isFixed } = req.body
-  if(!req.body || !activityId || !isFixed){
+  if(!req.body || !activityId){
     res.json({ result: false, error: "Nothing to update" });
     return;
   }
