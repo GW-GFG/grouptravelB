@@ -99,7 +99,8 @@ router.post('/new', (req, res) => {
 
 // Router get Data of one Trip
 router.post('/onetrip', (req, res) => {
-    Trip.findOne({_id: req.body.tripId})
+    console.log(req.body.tripId)
+    Trip.findById(req.body.tripId)
     .then(tripData => {
         if(!tripData){
             res.json({ result: false, error: 'No trip found' })
@@ -111,6 +112,8 @@ router.post('/onetrip', (req, res) => {
         res.json({ result: false, error: 'An error occurred' });
     });      
 });
+
+
 
 // Router get all dataTrip for a user
 router.get('/alldata/:token', (req, res) => {
@@ -248,6 +251,33 @@ router.put('/adduser/:idTrip', async (req, res) => {
                 console.error('Error adding user to trip:', error);
                 res.status(500).json({ result: false, Msg: 'Internal server error' });
             });
+});
+
+router.post('/budgetonetrip', (req, res) => {
+    console.log(req.body.tripId)
+    Trip.findById(req.body.tripId)
+    .then(tripData => {
+        if(!tripData){
+            res.json({ result: false, error: 'No trip found' })
+        }
+        let budgetAcommodations = 0;
+        let budgetActivities = 0;
+        for (let accomodation of tripData.accomodations) {
+            if (accomodation.isFixed)
+            budgetAcommodations += accomodation.budget
+        }
+        
+        for (let activity of tripData.activities) {
+            if (activity.isFixed)
+            budgetActivities += activity.budget
+        }
+        const totalBudget = budgetAcommodations+budgetActivities;
+        res.json({ result: true, tripBudget: totalBudget})
+      })
+    .catch(err => {
+        console.error(err);
+        res.json({ result: false, error: 'An error occurred' });
+    });      
 });
 
 
