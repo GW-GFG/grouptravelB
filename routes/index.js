@@ -6,10 +6,6 @@ const uniqid = require('uniqid');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
 
 router.post('/upload', async(req, res) => {
   const photoPath = `./tmp${uniqid()}.jpg`;

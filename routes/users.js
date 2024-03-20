@@ -13,12 +13,12 @@ const bcrypt = require("bcrypt");
 //import module to create unique token
 const uid2 = require("uid2");
 
-/* GET users listing. */
-router.get("/", (req, res) => {
-  User.find().then((data) => {
-    res.json({ result: true, data: data });
-  });
-});
+// /* GET users listing. */
+// router.get("/", (req, res) => {
+//   User.find().then((data) => {
+//     res.json({ result: true, data: data });
+//   });
+// });
 
 //Get if current user is admin on currentTrip
 router.post("/isAdmin", (req, res) => {
@@ -69,7 +69,7 @@ router.post("/getUser", (req, res) => {
     });
 });
 
-//update user
+//update user's profile picture
 router.put("/updateOne", (req, res) => {
   if (!req.body.token || !req.body.profilPicture) {
     return res.json({ result: false, message: "Données manquantes" });
@@ -100,21 +100,21 @@ router.put("/updateOne", (req, res) => {
     });
 });
 
-/* POST ("DELETE") user by token */
-router.delete("/deleteUser/:token", (req, res) => {
-  User.findOne({ token: req.params.token }).then((data) => {
-    if (data) {
-      User.deleteOne({ token: req.params.token }).then((data) => {
-        res.json({
-          result: true,
-          message: "L'utilisateur a bien été supprimé de la base de données",
-        });
-      });
-    } else {
-      res.json({ result: false, message: "Utilisateur non trouvé" });
-    }
-  });
-});
+// /* POST ("DELETE") user by token (no use yet)*/
+// router.delete("/deleteUser/:token", (req, res) => {
+//   User.findOne({ token: req.params.token }).then((data) => {
+//     if (data) {
+//       User.deleteOne({ token: req.params.token }).then((data) => {
+//         res.json({
+//           result: true,
+//           message: "L'utilisateur a bien été supprimé de la base de données",
+//         });
+//       });
+//     } else {
+//       res.json({ result: false, message: "Utilisateur non trouvé" });
+//     }
+//   });
+// });
 
 //SignUp to register a new user POST method
 router.post("/signup", (req, res) => {
@@ -198,8 +198,8 @@ router.post("/signin", (req, res) => {
     });
 });
 
-// route to update a newUser.
 
+// route to update a newUser by invit
 router.put("/updatenewuser", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
     res.json({ result: false, error: "Missing or empty fields" });
@@ -230,6 +230,7 @@ router.put("/updatenewuser", (req, res) => {
     });
 });
 
+//get members
 router.post("/getonetripallusername", (req, res) => {
   Trip.findOne({ _id: req.body.tripId })
     .populate("admin")

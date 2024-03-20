@@ -116,18 +116,18 @@ router.post('/onetrip', (req, res) => {
 
 
 // Router get all dataTrip for a user
-router.get('/alldata/:token', (req, res) => {
-    User.findOne({token: req.params.token})
-    .populate('myTrips')
-    .then(userData => {
-        // console.log(userData)
-        if(userData.myTrips != null){
-            res.json({ result: true, allTripData: userData.myTrips })
-        } else {
-            res.json({ result: false, error: 'No Trip declared for this user'})
-        }
-    })
-});
+// router.get('/alldata/:token', (req, res) => {
+//     User.findOne({token: req.params.token})
+//     .populate('myTrips')
+//     .then(userData => {
+//         // console.log(userData)
+//         if(userData.myTrips != null){
+//             res.json({ result: true, allTripData: userData.myTrips })
+//         } else {
+//             res.json({ result: false, error: 'No Trip declared for this user'})
+//         }
+//     })
+// });
 
 // ROUTE ADD USER WITH THIS MAIL /
 // fonction sendEmail
@@ -262,9 +262,9 @@ router.post('/budgetonetrip', (req, res) => {
         }
         let budgetAcommodations = 0;
         let budgetActivities = 0;
-        for (let accomodation of tripData.accomodations) {
-            if (accomodation.isFixed)
-            budgetAcommodations += accomodation.budget
+        for (let accommodation of tripData.accommodations) {
+            if (accommodation.isFixed)
+            budgetAcommodations += accommodation.budget
         }
         
         for (let activity of tripData.activities) {

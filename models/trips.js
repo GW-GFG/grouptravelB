@@ -20,7 +20,7 @@ const activitiesSchema = mongoose.Schema({
     isFixed: Boolean,
    });
 
-const accomodationsSchema = mongoose.Schema({
+const accommodationsSchema = mongoose.Schema({
     name: String,
     location: {
         name: String,
@@ -65,7 +65,7 @@ const tripSchema = mongoose.Schema({
     admin : { type: mongoose.Schema.Types.ObjectId, ref: 'users' }, 
     members : [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     activities : [activitiesSchema],    
-    accomodations :[accomodationsSchema], 
+    accommodations :[accommodationsSchema], 
     chat : [chatSchema]
 });
 

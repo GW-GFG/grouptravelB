@@ -5,14 +5,14 @@ const Trip = require('../models/trips');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 
-// "GET" all accomodations within a trip by body.id
-router.post('/', (req, res) => {
-    Trip.findById(req.body.id).populate('accomodations').then(data => {
-        res.json({result: true, data: data.accomodations});
-      });
-});
+// "GET" all accommodations within a trip by body.id
+// router.post('/', (req, res) => {
+//     Trip.findById(req.body.id).populate('accommodations').then(data => {
+//         res.json({result: true, data: data.accommodations});
+//       });
+// });
 
-//ADD a new accomodation in a trip
+//ADD a new accommodation in a trip
 router.post('/new', (req, res) => {
     // checks fields
     if (!checkBody(req.body, ['name', 'departureDate', 'returnDate'])) {
@@ -20,8 +20,8 @@ router.post('/new', (req, res) => {
         return;
     }
     
-    // checks if name is already taken for this accomodation
-    Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
+    // checks if name is already taken for this accommodation
+    Trip.findOne({ accommodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
     .then(data => {
         if (data !== null) {
             res.json({ result: false, error: 'Le nom du logement existe déjà, il en faut un nouveau'})
@@ -31,8 +31,8 @@ router.post('/new', (req, res) => {
             const newReturn = new Date(req.body.returnDate);
 
 
-            // newAccomodation to be added to database
-            const newAccomodation = ({
+            // newAccommodation to be added to database
+            const newAccommodation = ({
                 name: req.body.name,
                 location: {
                     name: req.body.location.name,
@@ -51,16 +51,15 @@ router.post('/new', (req, res) => {
                 isFixed: false,
             });
         
-            Trip.updateOne({_id: req.body.tripId}, { $push: { accomodations: newAccomodation}}).then(data => {
-                // Kevin: à priori pas besoin de "data" ?
+            Trip.updateOne({_id: req.body.tripId}, { $push: { accommodations: newAccommodation}}).then(data => {
                 // Antoine : rajout de la fonction pour update champs budget du trip -> Déplacement à la route is fixed
                 // if (req.body.budget > 0) {
                 // Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
                 // });
                 // }
-                Trip.findOne({ accomodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
+                Trip.findOne({ accommodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
                 .then(data => {
-                    res.json({result: true, newAccomodation: data, message: 'Logement ajouté avec succès !'});
+                    res.json({result: true, newAccommodation: data, message: 'Logement ajouté avec succès !'});
                 });
             });
         }
@@ -78,8 +77,8 @@ router.post('/vote', (req, res) => {
         // check if user already voted in this trip
         Trip.findOne({_id: req.body.tripId}).then(data => {
 
-            const currentAccomodation = data.accomodations.find((accomodation) => accomodation.id === req.body.accomodationId);
-            const checkUserVote = currentAccomodation.vote.find((singleVote) => singleVote.userId.toString() === dbUserId);
+            const currentAccommodation = data.accommodations.find((accommodation) => accommodation.id === req.body.accommodationId);
+            const checkUserVote = currentAccommodation.vote.find((singleVote) => singleVote.userId.toString() === dbUserId);
 
             if (checkUserVote) {
                 // user has already voted
@@ -92,13 +91,13 @@ router.post('/vote', (req, res) => {
                     Trip.findOneAndUpdate(
                         { 
                             _id: req.body.tripId, 
-                            'accomodations._id': req.body.accomodationId
+                            'accommodations._id': req.body.accommodationId
                         },
                         { 
-                            $pull: { 'accomodations.$[outer].vote': { _id: checkUserVote.id } }
+                            $pull: { 'accommodations.$[outer].vote': { _id: checkUserVote.id } }
                         },
                         { 
-                            arrayFilters: [{ 'outer._id': req.body.accomodationId }], 
+                            arrayFilters: [{ 'outer._id': req.body.accommodationId }], 
                             new: true 
                         }
                     )
@@ -118,14 +117,14 @@ router.post('/vote', (req, res) => {
                     Trip.findOneAndUpdate(
                         { 
                             _id: req.body.tripId, 
-                            'accomodations._id': req.body.accomodationId,
-                            'accomodations.vote._id': checkUserVote.id
+                            'accommodations._id': req.body.accommodationId,
+                            'accommodations.vote._id': checkUserVote.id
                         },
                         { 
-                            $set: { 'accomodations.$[outer].vote.$[inner].status': req.body.status } 
+                            $set: { 'accommodations.$[outer].vote.$[inner].status': req.body.status } 
                         },
                         { 
-                            arrayFilters: [{ 'outer._id': req.body.accomodationId }, { 'inner._id': checkUserVote.id}], 
+                            arrayFilters: [{ 'outer._id': req.body.accommodationId }, { 'inner._id': checkUserVote.id}], 
                             new: true 
                         }
                     )
@@ -152,8 +151,8 @@ router.post('/vote', (req, res) => {
             
                 // add new vote to DB
                 Trip.updateOne(
-                    {_id: req.body.tripId, 'accomodations._id': req.body.accomodationId}, 
-                    { $push: {'accomodations.$.vote': newVote}})
+                    {_id: req.body.tripId, 'accommodations._id': req.body.accommodationId}, 
+                    { $push: {'accommodations.$.vote': newVote}})
                     .then(data => {
                         res.json({ result: true, message: "Vote ajouté", newStatus: req.body.status});
                 });
@@ -173,13 +172,13 @@ router.put("/fixOne", (req, res) => {
 
     
       //the filter is req accommodationId
-      const filter = { "accomodations._id": accommodationId};
+      const filter = { "accommodations._id": accommodationId};
       //$set allow to updating only some fields (here isFixed first beacause is always require)
-      const update = { $set: { "accomodations.$.isFixed": isFixed } };
+      const update = { $set: { "accommodations.$.isFixed": isFixed } };
       //then, only if there is a dates in req body, i add it to my update const
       if (dates){
-        update.$set["accomodations.$.date.departure"] = new Date(dates.departure);
-        update.$set["accomodations.$.date.return"] = new Date(dates.return);
+        update.$set["accommodations.$.date.departure"] = new Date(dates.departure);
+        update.$set["accommodations.$.date.return"] = new Date(dates.return);
       }
       
       //I use the filter and the params defined before
@@ -188,9 +187,9 @@ router.put("/fixOne", (req, res) => {
         if (data.modifiedCount > 0) {
   //update is ok i want tu return the accommodation data to front
   
-          Trip.findOne({ "accomodations._id": accommodationId})
+          Trip.findOne({ "accommodations._id": accommodationId})
           .then(trip => {
-            const updatedAccommodation = trip.accomodations.find(accommodation => accommodation._id.equals(accommodationId))
+            const updatedAccommodation = trip.accommodations.find(accommodation => accommodation._id.equals(accommodationId))
             return res.json({ result: true, updatedAccommodation });
           })
         } else {

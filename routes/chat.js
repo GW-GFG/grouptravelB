@@ -40,8 +40,6 @@ router.put('/sendmsg', (req, res) => {
                     res.json({ result: true, Msg: 'Trip\'s Chat updatded', chat: updatedTrip.chat });
                 });
         } }) 
-    
-   
 })
 
 
