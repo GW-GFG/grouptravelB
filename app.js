@@ -11,7 +11,6 @@ var tripsRouter = require('./routes/trips');
 var activitiesRouter = require('./routes/activities');
 var accommodationsRouter = require('./routes/accommodations');
 var declineRouter = require('./routes/decline');
-// var budgetRouter = require('./routes/budget');
 var planningRouter = require('./routes/planning');
 var chatRouter = require('./routes/chat');
 
@@ -36,7 +35,6 @@ app.use('/trips', tripsRouter);
 app.use('/activities', activitiesRouter);
 app.use('/accommodations', accommodationsRouter);
 app.use('/decline', declineRouter);
-// app.use('/budget', budgetRouter);
 app.use('/planning', planningRouter);
 app.use('/chat', chatRouter);
 

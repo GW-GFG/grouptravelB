@@ -52,11 +52,6 @@ router.post('/new', (req, res) => {
             });
         
             Trip.updateOne({_id: req.body.tripId}, { $push: { accommodations: newAccommodation}}).then(data => {
-                // Antoine : rajout de la fonction pour update champs budget du trip -> Déplacement à la route is fixed
-                // if (req.body.budget > 0) {
-                // Trip.updateOne({_id: req.body.tripId}, { $inc: { budget: req.body.budget}}).then(data => {
-                // });
-                // }
                 Trip.findOne({ accommodations: { $elemMatch: {name: {$regex: new RegExp(req.body.name, 'i')} } } })
                 .then(data => {
                     res.json({result: true, newAccommodation: data, message: 'Logement ajouté avec succès !'});

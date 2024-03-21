@@ -51,7 +51,6 @@ router.post('/new', (req, res) => {
                 }
             }
             // Declaration new trip for bdd
-            // TODO HAVE LAT AND LNG
             const newTrip = new Trip({
                 name: req.body.name,
                 location: {
@@ -83,9 +82,9 @@ router.post('/new', (req, res) => {
                     return User.findOne({ token: req.body.token })
                         .populate('myTrips');
                 })
-                .then(updatedUser => {
-                    console.log(updatedUser.myTrips);
-                })
+                // .then(updatedUser => {
+                //     console.log(updatedUser.myTrips);
+                // })
                 .catch(err => {
                     console.error(err);
                     res.json({ result: false, error: 'An error occurred' });
@@ -98,8 +97,7 @@ router.post('/new', (req, res) => {
 });
 
 // Router get Data of one Trip
-router.post('/onetrip', (req, res) => {
-    console.log(req.body.tripId)
+router.post('/oneTrip', (req, res) => {
     Trip.findById(req.body.tripId)
     .then(tripData => {
         if(!tripData){
@@ -147,7 +145,7 @@ const sendEmail = async (to, htmlContent) => {
     }
   };
 
-router.put('/addnewuser/:idTrip',(req, res) => {
+router.put('/invitUser/:idTrip',(req, res) => {
     //use checkbody
     if (!checkBody(req.body, ['email'])) {
         res.json({ result: false, error: 'Missing or empty fields' });
@@ -155,7 +153,6 @@ router.put('/addnewuser/:idTrip',(req, res) => {
       }
     // Check if user already in DB  
     User.findOne({ email: { $regex: new RegExp(req.body.email, 'i') } }).then(data => {
-        console.log('data findOne : ' + data)
         if (!data) {
     //create a new document user with @ et myTripId
             const newUser = new User({
@@ -182,7 +179,7 @@ router.put('/addnewuser/:idTrip',(req, res) => {
                 .then(updatedTrip => {
                     const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${newUser.token}`;
                     sendEmail(req.body.email, htmlContent)
-                    console.log(updatedTrip);
+                    // console.log(updatedTrip);
 
                 })
                 
@@ -198,9 +195,9 @@ router.put('/addnewuser/:idTrip',(req, res) => {
                 console.log(data.token)
                 const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${data.token}/${req.params.idTrip}/`;
                 sendEmail(req.body.email, htmlContent)  
-                res.json({ result: true, Msg: 'User already exists, mail was send' });
+                res.json({ result: true, message: 'User already exists, mail was send' });
             } else {
-                res.json({ result: false, Msg: 'User already exists & it\s already includes in trips' }); 
+                res.json({ result: false, message: 'User already exists & it\s already includes in trips' }); 
             }
         }
       });
@@ -208,12 +205,12 @@ router.put('/addnewuser/:idTrip',(req, res) => {
 
 // ROUTE CONFIRMATION ALDREADY IN DDB
 
-router.put('/adduser/:idTrip', async (req, res) => {
+router.put('/addUser/:idTrip', async (req, res) => {
         // Recherche de l'utilisateur par le token
         User.findOne({ token: req.body.token })
             .then(userData => {
                 if (!userData) {
-                    return res.json({ result: false, Msg: 'User does not exist' });
+                    return res.json({ result: false, message: 'User does not exist' });
                 }
     
                 // Mise à jour du token de l'utilisateur
@@ -225,12 +222,12 @@ router.put('/adduser/:idTrip', async (req, res) => {
                     })
                     .then(tripData => {
                         if (!tripData) {
-                            return res.status(404).json({ result: false, Msg: 'Trip not found' });
+                            return res.status(404).json({ result: false, message: 'Trip not found' });
                         }
     
                         // Vérification si l'utilisateur est déjà membre du voyage
                         if (tripData.members.some((member) => member.equals(userData._id))) {
-                            return res.json({ result: false, Msg: 'User already added to trip' });
+                            return res.json({ result: false, message: 'User already added to trip' });
                         }
     
                         // Ajout de l'utilisateur au voyage
@@ -242,36 +239,35 @@ router.put('/adduser/:idTrip', async (req, res) => {
                             })
                             .then(updatedTrip => {
                                 // Réponse avec succès
-                                res.json({ result: true, Msg: 'User added to trip', trip: updatedTrip });
+                                res.json({ result: true, message: 'User added to trip', trip: updatedTrip });
                             });
                     });
             })
             .catch(error => {
                 // Gestion des erreurs
                 console.error('Error adding user to trip:', error);
-                res.status(500).json({ result: false, Msg: 'Internal server error' });
+                res.json({ result: false, message: 'Internal server error' });
             });
 });
 
-router.post('/budgetonetrip', (req, res) => {
-    console.log(req.body.tripId)
+router.post('/budgetOneTrip', (req, res) => {
     Trip.findById(req.body.tripId)
     .then(tripData => {
         if(!tripData){
             res.json({ result: false, error: 'No trip found' })
         }
-        let budgetAcommodations = 0;
+        let budgetAccommodations = 0;
         let budgetActivities = 0;
         for (let accommodation of tripData.accommodations) {
             if (accommodation.isFixed)
-            budgetAcommodations += accommodation.budget
+            budgetAccommodations += accommodation.budget
         }
         
         for (let activity of tripData.activities) {
             if (activity.isFixed)
             budgetActivities += activity.budget
         }
-        const totalBudget = budgetAcommodations+budgetActivities;
+        const totalBudget = budgetAccommodations+budgetActivities;
         res.json({ result: true, tripBudget: totalBudget})
       })
     .catch(err => {

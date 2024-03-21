@@ -13,108 +13,7 @@ const bcrypt = require("bcrypt");
 //import module to create unique token
 const uid2 = require("uid2");
 
-// /* GET users listing. */
-// router.get("/", (req, res) => {
-//   User.find().then((data) => {
-//     res.json({ result: true, data: data });
-//   });
-// });
 
-//Get if current user is admin on currentTrip
-router.post("/isAdmin", (req, res) => {
-  if (!checkBody(req.body, ["token", "currentTripId"])) {
-    res.json({ result: false, error: "Token ou currentTrip manquant" });
-    return;
-  }
-  
-  const { token, currentTripId } = req.body;
-
-  User.findOne({ token: token })
-    .then((userData) => {
-      if (!userData) {
-        return res.json({ result: false, error: "Utilisateur non trouvé" });
-      }
-      Trip.findById(currentTripId).then((currentTripData) => {
-        if (!currentTripData) {
-          res.json({ result: false, error: "Voyage non trouvé" });
-        }
-        const isAdmin =
-          userData._id.toString() === currentTripData.admin.toString();
-        res.json({ result: true, isAdmin: isAdmin });
-      });
-    })
-    .catch((error) => {
-      console.error("Erreur :", error);
-      return res.json({ result: false, error: "Une erreur est survenue" });
-    });
-});
-
-/* POST ("GET") user by token */
-router.post("/getUser", (req, res) => {
-  User.findOne({ token: req.body.token })
-    .populate("myTrips")
-    .then((data) => {
-      if (data) {
-        res.json({
-          result: true,
-          token: data.token,
-          username: data.username,
-          myTrips: data.myTrips,
-          userPicture: data.userPicture,
-          email: data.email,
-        });
-      } else {
-        res.json({ result: false, message: "Utilisateur non trouvé" });
-      }
-    });
-});
-
-//update user's profile picture
-router.put("/updateOne", (req, res) => {
-  if (!req.body.token || !req.body.profilPicture) {
-    return res.json({ result: false, message: "Données manquantes" });
-  }
-
-  User.updateOne(
-    { token: req.body.token },
-    { userPicture: req.body.profilPicture }
-  )
-    .then(() => {
-      return User.findOne({ token: req.body.token }).select("-password -_id");
-    })
-    //userData contains all data exept _id and password (handled by .select())
-    .then((userData) => {
-      if (userData) {
-        res.json({ result: true });
-      } else {
-        res.json({ result: false, message: "Utilisateur non trouvé" });
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
-      res.json({
-        result: false,
-        message:
-          "Une erreur s'est produite lors de la mise à jour de l'utilisateur",
-      });
-    });
-});
-
-// /* POST ("DELETE") user by token (no use yet)*/
-// router.delete("/deleteUser/:token", (req, res) => {
-//   User.findOne({ token: req.params.token }).then((data) => {
-//     if (data) {
-//       User.deleteOne({ token: req.params.token }).then((data) => {
-//         res.json({
-//           result: true,
-//           message: "L'utilisateur a bien été supprimé de la base de données",
-//         });
-//       });
-//     } else {
-//       res.json({ result: false, message: "Utilisateur non trouvé" });
-//     }
-//   });
-// });
 
 //SignUp to register a new user POST method
 router.post("/signup", (req, res) => {
@@ -123,7 +22,6 @@ router.post("/signup", (req, res) => {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   }
-
   // Check if the user has not already been registered (with case insensitive)
   User.findOne({ email: { $regex: new RegExp(req.body.email, "i") } }).then(
     (data) => {
@@ -198,9 +96,10 @@ router.post("/signin", (req, res) => {
     });
 });
 
-
-// route to update a newUser by invit
-router.put("/updatenewuser", (req, res) => {
+// route to update a newUser by invitation.
+// (Update and not create beacause the invitation creates  
+// a temporary user while waiting for the response)
+router.put("/updateNewUser", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
@@ -216,9 +115,9 @@ router.put("/updatenewuser", (req, res) => {
     .then((data) => {
       // Si la mise à jour a réussi, renvoyer l'utilisateur mis à jour
       if (data.modifiedCount > 0) {
-        return User.findOne({ email: req.body.email }); // Rechercher l'utilisateur mis à jour
+        return User.findOne({ email: req.body.email }).select("-_id -password"); // Rechercher l'utilisateur mis à jour
       } else {
-        res.json({ result: false, error: "no modification" });
+        res.json({ result: false, error: "No modification" });
       }
     })
     .then((updatedUser) => {
@@ -230,8 +129,60 @@ router.put("/updatenewuser", (req, res) => {
     });
 });
 
-//get members
-router.post("/getonetripallusername", (req, res) => {
+
+
+//Get if current user is admin on currentTrip
+router.post("/isAdmin", (req, res) => {
+  if (!checkBody(req.body, ["token", "currentTripId"])) {
+    res.json({ result: false, error: "Token ou currentTrip manquant" });
+    return;
+  }
+  
+  const { token, currentTripId } = req.body;
+
+  User.findOne({ token: token })
+    .then((userData) => {
+      if (!userData) {
+        return res.json({ result: false, error: "Utilisateur non trouvé" });
+      }
+      Trip.findById(currentTripId).then((currentTripData) => {
+        if (!currentTripData) {
+          res.json({ result: false, error: "Voyage non trouvé" });
+        }
+        const isAdmin =
+          userData._id.toString() === currentTripData.admin.toString();
+        res.json({ result: true, isAdmin: isAdmin });
+      });
+    })
+    .catch((error) => {
+      console.error("Erreur :", error);
+      return res.json({ result: false, error: "Une erreur est survenue" });
+    });
+});
+
+/* POST ("GET") user by token */
+router.post("/getUser", (req, res) => {
+  User.findOne({ token: req.body.token })
+    .populate("myTrips")
+    .then((data) => {
+      if (data) {
+        res.json({
+          result: true,
+          token: data.token,
+          username: data.username,
+          myTrips: data.myTrips,
+          userPicture: data.userPicture,
+          email: data.email,
+        });
+      } else {
+        res.json({ result: false, message: "Utilisateur non trouvé" });
+      }
+    });
+});
+
+
+//get members (and admin) usernames
+router.post("/allUsernameThisTrip", (req, res) => {
   Trip.findOne({ _id: req.body.tripId })
     .populate("admin")
     .populate("members")
@@ -247,5 +198,61 @@ router.post("/getonetripallusername", (req, res) => {
       res.json({ result: true, usernameData: allNameOftrip });
     });
 });
+
+
+//update user's profile picture
+router.put("/updateOne", (req, res) => {
+  if (!req.body.token || !req.body.profilPicture) {
+    return res.json({ result: false, message: "Données manquantes" });
+  }
+
+  User.updateOne(
+    { token: req.body.token },
+    { userPicture: req.body.profilPicture }
+  )
+    .then(() => {
+      return User.findOne({ token: req.body.token }).select("-password -_id");
+    })
+    //userData contains all data exept _id and password (handled by .select())
+    .then((userData) => {
+      if (userData) {
+        res.json({ result: true });
+      } else {
+        res.json({ result: false, message: "Utilisateur non trouvé" });
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
+      res.json({
+        result: false,
+        message:
+          "Une erreur s'est produite lors de la mise à jour de l'utilisateur",
+      });
+    });
+});
+
+
+// /* GET users listing. */
+// router.get("/", (req, res) => {
+//   User.find().then((data) => {
+//     res.json({ result: true, data: data });
+//   });
+// });
+
+// /* POST ("DELETE") user by token (no use yet)*/
+// router.delete("/deleteUser/:token", (req, res) => {
+//   User.findOne({ token: req.params.token }).then((data) => {
+//     if (data) {
+//       User.deleteOne({ token: req.params.token }).then((data) => {
+//         res.json({
+//           result: true,
+//           message: "L'utilisateur a bien été supprimé de la base de données",
+//         });
+//       });
+//     } else {
+//       res.json({ result: false, message: "Utilisateur non trouvé" });
+//     }
+//   });
+// });
 
 module.exports = router;

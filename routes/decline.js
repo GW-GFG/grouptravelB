@@ -4,12 +4,12 @@ require('../models/connexion');
 const Trip = require('../models/trips');
 const User = require('../models/users');
 
-router.put('/invitateduser/:tripId', async (req, res) => {
+router.put('/invitatedUser/:tripId', async (req, res) => {
     // Recherche de l'utilisateur par le jeton
     User.findOne({ token: req.body.token })
         .then(userData => {
             if (!userData) {
-                return res.json({ result: false, Msg: 'User not found' });
+                return res.json({ result: false, message: 'User not found' });
             }
             // Suppression de l'utilisateur du voyage
             return Trip.updateOne(
@@ -22,25 +22,25 @@ router.put('/invitateduser/:tripId', async (req, res) => {
                     return User.deleteOne({ _id: userData._id })
                         .then(deleteUserResult => {
                             if (!deleteUserResult.deletedCount) {
-                                return res.json({ result: false, Msg: 'Failed to delete user' });
+                                return res.json({ result: false, message: 'Failed to delete user' });
                             }
                             // Envoi de la réponse si tout s'est bien passé
-                            res.json({ result: true, Msg: 'User has been deleted' });
+                            res.json({ result: true, message: 'User has been deleted' });
                         })
                         .catch(error => {
                             console.error('Error deleting user:', error);
-                            res.status(500).json({ result: false, Msg: 'Internal server error' });
+                            res.json({ result: false, message: 'Internal server error' });
                         });
                 } else {
-                    return res.json({ result: false, Msg: 'Failed to remove user from trip' });
+                    return res.json({ result: false, message: 'Failed to remove user from trip' });
                 }
             }).catch(error => {
                 console.error('Error updating trip:', error);
-                res.status(500).json({ result: false, Msg: 'Internal server error' });
+                res.json({ result: false, message: 'Internal server error' });
             });
         }).catch(error => {
             console.error('Error finding user:', error);
-            res.status(500).json({ result: false, Msg: 'Internal server error' });
+            res.json({ result: false, message: 'Internal server error' });
         });
 });
 
@@ -50,9 +50,9 @@ router.put('/invitation/:tripId', (req, res) => {
         )
         .then(userUpdateResult => {
             if (!userUpdateResult.modifiedCount > 0) {
-                return res.json({ result: false, Msg: 'Failed to remove user from trip' });
+                return res.json({ result: false, message: 'Failed to remove user from trip' });
             } 
-            res.json({ result: true, Msg: 'Trip invitation has been declined' });
+            res.json({ result: true, message: 'Trip invitation has been declined' });
         })
 })
 
