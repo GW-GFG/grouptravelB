@@ -81,22 +81,29 @@ router.post("/vote", (req, res) => {
 
       if (checkUserVote) {
         Trip.findOneAndUpdate(
+          //find
           {
+            //find the trip
             _id: req.body.tripId,
+            // find the activity
             "activities._id": req.body.activityId,
+            // and find the user's vote
             "activities.participation._id": checkUserVote.id,
           },
+          //To update
           {
             $set: {
-              "activities.$[outer].participation.$[inner].status":
+              //The path tu update the good status in activities the selected activity, in participation the selected vote
+              "activities.$[activity].participation.$[vote].status":
                 req.body.status,
             },
           },
           {
             arrayFilters: [
-              { "outer._id": req.body.activityId },
-              { "inner._id": checkUserVote.id },
+              { "activity._id": req.body.activityId },
+              { "vote._id": checkUserVote.id },
             ],
+            //to send the updated doc in response
             new: true,
           }
         )
@@ -108,14 +115,16 @@ router.post("/vote", (req, res) => {
                 newStatus: req.body.status,
               });
             } else {
-              res.json({ result: false, error: "Trip or activity or vote not found" });
+              res.json({
+                result: false,
+                error: "Trip or activity or vote not found",
+              });
             }
           })
           .catch((error) => {
             console.error(error);
             res.json({ result: false, error: "Server error" });
           });
-
       } else {
         // user hasn't voted yet, adding his vote
         const newVote = {
@@ -134,6 +143,10 @@ router.post("/vote", (req, res) => {
             message: "Vote ajouté",
             newStatus: req.body.status,
           });
+        })
+        .catch((error) => {
+            console.error(error);
+            res.json({ result: false, error: "Server error" });
         });
       }
     });
