@@ -177,7 +177,7 @@ router.put('/invitUser/:idTrip',(req, res) => {
                         .populate('members');
                 })
                 .then(updatedTrip => {
-                    const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${newUser.token}`;
+                    const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : https://grouptravel-b-gwgfg.vercel.app/confirmation/${newUser.token}`;
                     sendEmail(req.body.email, htmlContent)
                     // console.log(updatedTrip);
 
@@ -193,7 +193,7 @@ router.put('/invitUser/:idTrip',(req, res) => {
     // User already exists in database & doesn't already exist inTrip
             if(!data.myTrips.some((e) => e.id === req.params.idTrip)) {
                 console.log(data.token)
-                const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : http://localhost:3000/confirmation/${data.token}/${req.params.idTrip}/`;
+                const htmlContent = `<p>Bienvenue sur notre plateforme ! Voici le lien pour rejoindre le voyage : https://grouptravel-b-gwgfg.vercel.app/confirmation/${data.token}/${req.params.idTrip}/`;
                 sendEmail(req.body.email, htmlContent)  
                 res.json({ result: true, message: 'User already exists, mail was send' });
             } else {
