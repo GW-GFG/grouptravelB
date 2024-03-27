@@ -21,7 +21,12 @@ const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 
 const cors = require('cors');
+const corsOptions = {
+    origin: 'https://grouptravel-b-gwgfg.vercel.app',
+    optionsSuccessStatus: 200
+  };
 app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(logger('dev'));
 app.use(express.json());

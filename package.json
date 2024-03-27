@@ -7,7 +7,7 @@
   },
   "resolutions": {
     "string-width": "4.2.3"
- },
+  },
   "dependencies": {
     "@react-email/render": "^0.0.12",
     "@sendgrid/mail": "^8.1.1",
@@ -23,6 +23,6 @@
     "morgan": "~1.9.1",
     "uid2": "^1.0.0",
     "uniqid": "^5.4.0"
-    
-  }
+  },
+  "devDependencies": {}
 }
