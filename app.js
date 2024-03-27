@@ -21,12 +21,22 @@ const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 
 const cors = require('cors');
-const corsOptions = {
-    origin: 'https://grouptravel-b-gwgfg.vercel.app',
-    optionsSuccessStatus: 200
-  };
 app.use(cors());
-app.use(cors(corsOptions));
+
+const allowedOrigins = ['https://grouptravel-b-gwgfg.vercel.app', 'https://grouptravelgw-gfg.vercel.app'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by Gwen'));
+      }
+    }
+  }));
+
+
+
 
 app.use(logger('dev'));
 app.use(express.json());
