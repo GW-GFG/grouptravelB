@@ -26,93 +26,95 @@
 
 // module.exports = router;
 
-const express = require('express');
 
-const cloudinary = require('cloudinary').v2;
+//  
+// const express = require('express');
 
-const uniqid = require('uniqid');
+// const cloudinary = require('cloudinary').v2;
 
-const fs = require('fs');
+// const uniqid = require('uniqid');
 
-const router = express.Router();
+// const fs = require('fs');
 
-
-// Configure Cloudinary
-
-cloudinary.config({
-
-  // Add your Cloudinary credentials here
-
-});
+// const router = express.Router();
 
 
-router.post('/upload', (req, res) => {
+// // Configure Cloudinary
 
-  // We can use req.body.image instead of req.files.image
+// cloudinary.config({
 
-  const photoPath = `./tmp${uniqid()}.jpg`;
+//   // Add your Cloudinary credentials here
 
-
-  if (req.method === 'POST') {
-
-    // Set the options for upload
-
-    const options = {
-
-      resource_type: 'image',
-
-      unique_filename: true,
-
-      overwrite: true
-
-    };
+// });
 
 
-    req.pipe(
+// router.post('/upload', (req, res) => {
 
-      cloudinary.uploader.upload_stream(options, (error, result) => {
+//   // We can use req.body.image instead of req.files.image
 
-        if (result) {
-
-          res.status(200).json({ result: true, url: result.secure_url });
-
-          // Remove the tmp file
-
-          fs.unlinkSync(photoPath);
-
-        } else if (error) {
-
-          // Deal with errors
-
-          fs.unlinkSync(photoPath);
-
-          res.status(500).json({ error: error.message });
-
-        }
-
-      })
-
-    );
+//   const photoPath = `./tmp${uniqid()}.jpg`;
 
 
-    // To continue saving the file locally
+//   if (req.method === 'POST') {
 
-    // Save the uploaded file
+//     // Set the options for upload
 
-    req.pipe(fs.createWriteStream(photoPath));
+//     const options = {
 
+//       resource_type: 'image',
 
-  } else {
+//       unique_filename: true,
 
-    // Handle unsupported HTTP methods
+//       overwrite: true
 
-    res.set({ 'Content-Type': 'application/json' });
-
-    res.status(405).json({ error: 'Method not supported' });
-
-  }
-
-});
+//     };
 
 
-module.exports = router;
+//     req.pipe(
+
+//       cloudinary.uploader.upload_stream(options, (error, result) => {
+
+//         if (result) {
+
+//           res.status(200).json({ result: true, url: result.secure_url });
+
+//           // Remove the tmp file
+
+//           fs.unlinkSync(photoPath);
+
+//         } else if (error) {
+
+//           // Deal with errors
+
+//           fs.unlinkSync(photoPath);
+
+//           res.status(500).json({ error: error.message });
+
+//         }
+
+//       })
+
+//     );
+
+
+//     // To continue saving the file locally
+
+//     // Save the uploaded file
+
+//     req.pipe(fs.createWriteStream(photoPath));
+
+
+//   } else {
+
+//     // Handle unsupported HTTP methods
+
+//     res.set({ 'Content-Type': 'application/json' });
+
+//     res.status(405).json({ error: 'Method not supported' });
+
+//   }
+
+// });
+
+
+// module.exports = router;
