@@ -27,27 +27,28 @@ app.options('*', (req, res) => {
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.send();
   });
-  
-const allowedOrigins = [
-'https://grouptravel-b-gwgfg.vercel.app',
 
-'https://grouptravel-b-gwgfg.vercel.app/upload',
+app.use(cors());
+// const allowedOrigins = [
+// 'https://grouptravel-b-gwgfg.vercel.app',
 
-'https://grouptravel-b-gwgfg.vercel.app/',
+// 'https://grouptravel-b-gwgfg.vercel.app/upload',
 
-'https://grouptravelgw-gwgfg.vercel.app',
+// 'https://grouptravel-b-gwgfg.vercel.app/',
 
-'https://grouptravelgw-gwgfg.vercel.app/'];
+// 'https://grouptravelgw-gwgfg.vercel.app',
 
-app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by Gwen'));
-      }
-    }
-  }));
+// 'https://grouptravelgw-gwgfg.vercel.app/'];
+
+// app.use(cors({
+//     origin: function (origin, callback) {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error('Not allowed by Gwen'));
+//       }
+//     }
+//   }));
 
 
 app.use(logger('dev'));
