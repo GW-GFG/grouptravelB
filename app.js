@@ -1,6 +1,8 @@
 // require('dotenv').config();
 
 var express = require('express');
+const fileUpload = require('express-fileupload');
+const cors = require('cors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -17,13 +19,17 @@ var chatRouter = require('./routes/chat');
 
 var app = express();
 
-const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 
-const cors = require('cors');
-app.use(cors());
 
-const allowedOrigins = ['https://grouptravel-b-gwgfg.vercel.app', 'https://grouptravelgw-gfg.vercel.app', 'https://grouptravel-b-gwgfg.vercel.app/upload'];
+const allowedOrigins = [
+'https://grouptravel-b-gwgfg.vercel.app',
+
+'https://grouptravel-b-gwgfg.vercel.app/upload',
+
+'https://grouptravelgw-gwgfg.vercel.app',
+
+'https://grouptravelgw-gwgfg.vercel.app/'];
 
 app.use(cors({
     origin: function (origin, callback) {
