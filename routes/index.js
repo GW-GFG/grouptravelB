@@ -1,17 +1,17 @@
-var express = require('express');
-var router = express.Router();
-//To get an unique name for each photos
-const uniqid = require('uniqid');
-//import cloudinary
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
+// var express = require('express');
+// var router = express.Router();
+// //To get an unique name for each photos
+// const uniqid = require('uniqid');
+// //import cloudinary
+// const cloudinary = require('cloudinary').v2;
+// const fs = require('fs');
 
 
 // router.post('/upload', async(req, res) => {
+//   // 'use server'
 //   console.log('envoieupload')
-
-//   const photoPath = `${process.cwd()}/tmp/${uniqid()}.jpg`;
-//   // const photoPath = `./tmp${uniqid()}.jpg`;
+  
+//   const photoPath = `./tmp${uniqid()}.jpg`;
 //   const resultMove = await req.files.image.mv(photoPath);
 // //resultMove undefined mean that it worked correctly
 //   if (!resultMove) {
@@ -24,31 +24,95 @@ const fs = require('fs');
 //   fs.unlinkSync(photoPath);
 // });
 
-router.post('/upload', async (req, res) => {
+// module.exports = router;
 
-  console.log('envoieupload');
+const express = require('express');
+
+const cloudinary = require('cloudinary').v2;
+
+const uniqid = require('uniqid');
+
+const fs = require('fs');
+
+const router = express.Router();
 
 
-  if (!req.files || Object.keys(req.files).length === 0) {
+// Configure Cloudinary
 
-    return res.status(400).send('No files were uploaded.');
+cloudinary.config({
+
+  // Add your Cloudinary credentials here
+
+});
+
+
+router.post('/upload', (req, res) => {
+
+  // We can use req.body.image instead of req.files.image
+
+  const photoPath = `./tmp${uniqid()}.jpg`;
+
+
+  if (req.method === 'POST') {
+
+    // Set the options for upload
+
+    const options = {
+
+      resource_type: 'image',
+
+      unique_filename: true,
+
+      overwrite: true
+
+    };
+
+
+    req.pipe(
+
+      cloudinary.uploader.upload_stream(options, (error, result) => {
+
+        if (result) {
+
+          res.status(200).json({ result: true, url: result.secure_url });
+
+          // Remove the tmp file
+
+          fs.unlinkSync(photoPath);
+
+        } else if (error) {
+
+          // Deal with errors
+
+          fs.unlinkSync(photoPath);
+
+          res.status(500).json({ error: error.message });
+
+        }
+
+      })
+
+    );
+
+
+    // To continue saving the file locally
+
+    // Save the uploaded file
+
+    req.pipe(fs.createWriteStream(photoPath));
+
+
+  } else {
+
+    // Handle unsupported HTTP methods
+
+    res.set({ 'Content-Type': 'application/json' });
+
+    res.status(405).json({ error: 'Method not supported' });
 
   }
 
-
-  const image = req.files.image;
-
-  
-
-  // Cloudinary does not require you to move the file
-
-  // You can directly provide their path to the upload method
-
-  const cloudinaryResults = await cloudinary.uploader.upload(image.tempFilePath);
-
-
-  res.json({ result: true, url: cloudinaryResults.secure_url });
-
 });
+
 
 module.exports = router;
