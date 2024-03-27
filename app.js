@@ -23,7 +23,7 @@ app.use(fileUpload());
 const cors = require('cors');
 app.use(cors());
 
-const allowedOrigins = ['https://grouptravel-b-gwgfg.vercel.app', 'https://grouptravelgw-gfg.vercel.app'];
+const allowedOrigins = ['https://grouptravel-b-gwgfg.vercel.app', 'https://grouptravelgw-gfg.vercel.app', 'https://grouptravel-b-gwgfg.vercel.app/upload'];
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -34,8 +34,6 @@ app.use(cors({
       }
     }
   }));
-
-
 
 
 app.use(logger('dev'));
