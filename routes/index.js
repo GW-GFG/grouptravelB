@@ -9,7 +9,9 @@ const fs = require('fs');
 
 router.post('/upload', async(req, res) => {
   console.log('envoieupload')
-  const photoPath = `./tmp${uniqid()}.jpg`;
+
+  const photoPath = `${process.cwd()}/tmp/${uniqid()}.jpg`;
+  // const photoPath = `./tmp${uniqid()}.jpg`;
   const resultMove = await req.files.image.mv(photoPath);
 //resultMove undefined mean that it worked correctly
   if (!resultMove) {
