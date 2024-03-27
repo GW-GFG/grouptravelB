@@ -27,6 +27,8 @@ const allowedOrigins = [
 
 'https://grouptravel-b-gwgfg.vercel.app/upload',
 
+'https://grouptravel-b-gwgfg.vercel.app/',
+
 'https://grouptravelgw-gwgfg.vercel.app',
 
 'https://grouptravelgw-gwgfg.vercel.app/'];
