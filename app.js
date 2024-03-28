@@ -29,7 +29,7 @@ app.options('*', (req, res) => {
   });
 
   app.use(cors({
-    origin: 'https://grouptravelgw-gfg.vercel.app',
+    origin: ['https://grouptravelgw-gfg.vercel.app', 'https://grouptravel-b-gwgfg.vercel.app' ],
     credentials: true
 }));
 // app.use(cors());
