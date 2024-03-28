@@ -28,18 +28,15 @@ app.options('*', (req, res) => {
     res.send();
   });
 
-app.use(cors());
+  app.use(cors({
+    origin: 'https://grouptravelgw-gfg.vercel.app',
+    credentials: true
+}));
+// app.use(cors());
 // const allowedOrigins = [
 // 'https://grouptravel-b-gwgfg.vercel.app',
-
-// 'https://grouptravel-b-gwgfg.vercel.app/upload',
-
-// 'https://grouptravel-b-gwgfg.vercel.app/',
-
 // 'https://grouptravelgw-gwgfg.vercel.app',
-
-// 'https://grouptravelgw-gwgfg.vercel.app/'];
-
+// ];
 // app.use(cors({
 //     origin: function (origin, callback) {
 //       if (!origin || allowedOrigins.includes(origin)) {
