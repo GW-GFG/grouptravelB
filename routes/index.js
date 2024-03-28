@@ -27,6 +27,8 @@ router.post('/upload', async (req, res) => {
     if (req.files.image.size > 5000000) { // check if the file size is within the limit
       return res.status(413).json({ result: false, error: 'File size is too large (5Mb max).' });
     }
+    console.log('req.files.image', req.files.image)
+    console.log('req.files.image.data', req.files.image.data)
     const result = await cloudinary.uploader.upload(req.files.image.data);
     res.json({ result: true, url: result.secure_url });
   } catch (error) {
