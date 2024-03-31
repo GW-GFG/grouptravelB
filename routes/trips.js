@@ -182,13 +182,11 @@ router.put('/invitUser/:idTrip',(req, res) => {
                     // console.log(updatedTrip);
 
                 })
-                
                 .catch(err => {
                     console.error(err);
                     res.json({ result: false, error: 'An error occurred' });
                 });
-                
-                
+                             
         } else {
     // User already exists in database & doesn't already exist inTrip
             if(!data.myTrips.some((e) => e.id === req.params.idTrip)) {
