@@ -1,6 +1,7 @@
 // require('dotenv').config();
 
 var express = require('express');
+const firebase = require('./firebase');
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 var path = require('path');
