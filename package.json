@@ -19,7 +19,6 @@
     "dotenv": "^16.4.5",
     "express": "4.19.1",
     "express-fileupload": "^1.4.3",
-    "firebase": "^10.11.1",
     "mongoose": "^8.2.0",
     "morgan": "~1.9.1",
     "multer": "^1.4.5-lts.1",
