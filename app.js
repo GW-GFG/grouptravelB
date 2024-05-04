@@ -20,6 +20,8 @@ var chatRouter = require('./routes/chat');
 
 var app = express();
 
+firebase.initializeFirebase();
+
 app.use(fileUpload());
 
 app.options('*', (req, res) => {
